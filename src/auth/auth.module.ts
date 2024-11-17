@@ -10,6 +10,7 @@ import { VendorServices, VendorServicesSchema } from './schemas/vendorservices.s
 import { Reviews, ReviewsSchema } from './schemas/reviews.schema';
 import { Event, EventSchema } from './schemas/events.schemas';
 import { Bookings, BookingsSchema } from './schemas/bookings.schema';
+import { Category, CategorySchema } from './schemas/category.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
@@ -21,9 +22,17 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
       secret: process.env.JWT_SECRET || 'secret',
       signOptions: { expiresIn: '1d' },
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }, { name: Vendor.name, schema: VendorSchema }, { name: VendorServices.name, schema: VendorServicesSchema }, { name: Reviews.name, schema: ReviewsSchema }, { name: Event.name, schema: EventSchema }, { name: Bookings.name, schema: BookingsSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Vendor.name, schema: VendorSchema },
+      { name: VendorServices.name, schema: VendorServicesSchema },
+      { name: Reviews.name, schema: ReviewsSchema },
+      { name: Event.name, schema: EventSchema },
+      { name: Bookings.name, schema: BookingsSchema },
+      { name: Category.name, schema: CategorySchema }
+    ]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, GoogleStrategy, FacebookStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }

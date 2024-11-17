@@ -16,7 +16,7 @@ export class AuthService {
   ) { }
 
   async register(registerDto: RegisterDto) {
-    const { email, password } = registerDto;
+    const { email, password, role } = registerDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -26,6 +26,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.userModel.create({
       ...registerDto,
+      role: role,
       password: hashedPassword,
     });
 
