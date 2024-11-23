@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, isString } from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString, MinLength, isString } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
@@ -13,4 +13,12 @@ export class RegisterDto {
 
   @IsString()
   role: string;
+
+  @IsString()
+  @IsOptional()
+  mobileNumber?: string;
+
+  @IsArray()
+  @IsOptional()
+  vendorCategories?: string[]
 }

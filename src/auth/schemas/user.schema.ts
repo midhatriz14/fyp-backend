@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
-
   @Prop()
-  user_id: string; 
+  user_id: string;
 
   @Prop({ required: true })
   email: string;
@@ -33,6 +32,10 @@ export class User extends Document {
 
   @Prop()
   providerId?: string;
+
+  // Business Categories: Array of ObjectIds referencing a BusinessCategory schema
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Category' }] })
+  businessCategories: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
