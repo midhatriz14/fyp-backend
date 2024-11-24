@@ -16,7 +16,7 @@ export class AuthService {
   ) { }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, role } = registerDto;
+    const { email, password, role, vendorCategories } = registerDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -27,6 +27,7 @@ export class AuthService {
     const user = await this.userModel.create({
       ...registerDto,
       role: role,
+      businessCategories: vendorCategories,
       password: hashedPassword,
     });
 
