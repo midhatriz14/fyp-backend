@@ -17,7 +17,7 @@ export class AuthService {
   ) { }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, role } = registerDto;
+    const { email, password, role, businessCategories } = registerDto;
     this.logger.log(registerDto, "Register");
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -27,9 +27,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.userModel.create({
       ...registerDto,
+      businessCategories: businessCategories,
       role: role,
       password: hashedPassword,
     });
+
+    this.logger.log(user, "User");
 
     const token = this.jwtService.sign({ id: user._id });
     return { token };
