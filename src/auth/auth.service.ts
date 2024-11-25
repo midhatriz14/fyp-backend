@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,11 +13,12 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
+    private logger: Logger
   ) { }
 
   async register(registerDto: RegisterDto) {
     const { email, password, role } = registerDto;
-
+    this.logger.log(registerDto, "Register");
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
       throw new UnauthorizedException('Email already exists');
