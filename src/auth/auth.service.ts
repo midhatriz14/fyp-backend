@@ -27,6 +27,9 @@ export class AuthService {
       }
       return new Types.ObjectId(id); // Convert to ObjectId if valid
     });
+
+    this.logger.log(categoriesArray, "Transformed Business Categories");
+
   
     // Check if the user already exists
     const existingUser = await this.userModel.findOne({ email });
