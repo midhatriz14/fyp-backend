@@ -10,10 +10,10 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger("fyp")
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
-    private logger: Logger
   ) { }
 
   async register(registerDto: RegisterDto) {
