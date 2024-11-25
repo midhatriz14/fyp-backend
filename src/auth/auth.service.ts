@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as nodemailer from 'nodemailer';
 import { User } from './schemas/user.schema';
@@ -19,21 +19,35 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const { email, password, role, businessCategories } = registerDto;
     this.logger.log(registerDto, "Register");
+  
+    // Ensure businessCategories contains valid ObjectIds
+    const categoriesArray = businessCategories?.map((id) => {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new Error(`Invalid ObjectId: ${id}`);
+      }
+      return new Types.ObjectId(id); // Convert to ObjectId if valid
+    });
+  
+    // Check if the user already exists
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
       throw new UnauthorizedException('Email already exists');
     }
-
+  
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+  
+    // Create the user
     const user = await this.userModel.create({
       ...registerDto,
-      businessCategories: businessCategories,
+      businessCategories: categoriesArray,
       role: role,
       password: hashedPassword,
     });
-
+  
     this.logger.log(user, "User");
-
+  
+    // Generate JWT token
     const token = this.jwtService.sign({ id: user._id });
     return { token };
   }
