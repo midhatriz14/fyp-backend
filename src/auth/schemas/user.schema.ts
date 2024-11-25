@@ -35,7 +35,7 @@ export class User extends Document {
 
   // Business Categories: Array of ObjectIds referencing a BusinessCategory schema
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Category' }] })
-  businessCategories: Types.ObjectId[];
+  buisnessCategories: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

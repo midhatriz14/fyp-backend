@@ -17,11 +17,11 @@ export class AuthService {
   ) { }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, role, businessCategories } = registerDto;
+    const { email, password, role, buisnessCategories } = registerDto;
     this.logger.log(registerDto, "Register");
   
     // Ensure businessCategories contains valid ObjectIds
-    const categoriesArray = businessCategories?.map((id) => {
+    const categoriesArray = buisnessCategories?.map((id) => {
       if (!Types.ObjectId.isValid(id)) {
         throw new Error(`Invalid ObjectId: ${id}`);
       }
@@ -43,7 +43,7 @@ export class AuthService {
     // Create the user
     const user = await this.userModel.create({
       ...registerDto,
-      businessCategories: categoriesArray,
+      buisnessCategories: categoriesArray,
       role: role,
       password: hashedPassword,
     });

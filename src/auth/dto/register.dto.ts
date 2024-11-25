@@ -20,5 +20,5 @@ export class RegisterDto {
 
   @IsArray()
   @IsOptional()
-  businessCategories?: string[]
+  buisnessCategories?: string[]
 }
