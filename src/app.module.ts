@@ -4,8 +4,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { VendorModule } from './vendor/vendor.module';
+import { MessagesModule } from './messages/messages.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     AuthModule,
     CategoryModule,
     VendorModule,
+    MessagesModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],

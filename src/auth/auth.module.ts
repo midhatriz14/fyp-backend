@@ -11,6 +11,7 @@ import { Reviews, ReviewsSchema } from './schemas/reviews.schema';
 import { Event, EventSchema } from './schemas/events.schemas';
 import { Bookings, BookingsSchema } from './schemas/bookings.schema';
 import { Category, CategorySchema } from './schemas/category.schema';
+import { Message, MessageSchema } from './schemas/message.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
@@ -29,7 +30,8 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
       { name: Reviews.name, schema: ReviewsSchema },
       { name: Event.name, schema: EventSchema },
       { name: Bookings.name, schema: BookingsSchema },
-      { name: Category.name, schema: CategorySchema }
+      { name: Category.name, schema: CategorySchema },
+      { name: Message.name, schema: MessageSchema },
     ]),
   ],
   controllers: [AuthController],
