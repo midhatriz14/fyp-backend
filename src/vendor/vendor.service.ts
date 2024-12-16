@@ -1,12 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from '../auth/schemas/user.schema';
+import { ContactDetails } from './../auth/schemas/contact-details.schema';
+import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
+import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
+import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
+import { CreateVenueBusinessDetailsDto } from './dto/create-venue-business-details.dto';
+import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business-details.dto';
 
 @Injectable()
 export class VendorService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel('ContactDetails') private readonly contactModel: Model<ContactDetails>,
     ) { }
 
     async getAllVendorsByCategoryId(categoryId: string): Promise<User[]> {
@@ -19,5 +26,27 @@ export class VendorService {
         });
 
         return vendors;
+    }
+
+    async createContactDetails(
+        createContactDetailsDto: CreateContactDetailsDto,
+    ): Promise<ContactDetails> {
+        const contactDetails = new this.contactModel(createContactDetailsDto);
+        return await contactDetails.save();
+    }
+
+    async createBuisnessDetails(
+        userId: string,
+        dto:
+            CreatePhotographerBusinessDetailsDto |
+            CreateSalonBusinessDetailsDto |
+            CreateVenueBusinessDetailsDto |
+            CreateCateringBusinessDetailsDto,
+    ): Promise<User> {
+        const user = await this.userModel.findById(userId).exec();
+        if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
+        user.businessDetails = dto as any; // Embed the business details
+        return await user.save();
     }
 }
