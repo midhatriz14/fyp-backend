@@ -48,7 +48,6 @@ export class VendorService {
     ): Promise<User> {
         const user = await this.userModel.findById(userId).populate('buisnessCategories').exec();
         if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
-
         if (user.buisnessCategories.name === "Venues") {
             user.venueBusinessDetails = { ...dto } as VenueBusinessDetails;
         } else if (user.buisnessCategories.name === "Caterings") {
@@ -58,6 +57,7 @@ export class VendorService {
         } else if (user.buisnessCategories.name === "Makeup") {
             user.salonBusinessDetails = { ...dto } as SalonBusinessDetails;
         } else {
+            console.log("No Buisness Category", user.buisnessCategories);
             throw new NotFoundException(`Business Category not found or not defined yet.`);
         }
         return await user.save();
