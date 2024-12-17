@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from '../auth/schemas/user.schema';
-import { ContactDetails } from './../auth/schemas/contact-details.schema';
+import { ContactDetails, ContactDetailsSchema } from './../auth/schemas/contact-details.schema';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
 import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
@@ -13,7 +13,6 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 export class VendorService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel('ContactDetails') private readonly contactModel: Model<ContactDetails>,
     ) { }
 
     async getAllVendorsByCategoryId(categoryId: string): Promise<User[]> {
@@ -29,10 +28,14 @@ export class VendorService {
     }
 
     async createContactDetails(
+        userId: string,
         createContactDetailsDto: CreateContactDetailsDto,
-    ): Promise<ContactDetails> {
-        const contactDetails = new this.contactModel(createContactDetailsDto);
-        return await contactDetails.save();
+    ): Promise<User> {
+        const user = await this.userModel.findById(userId).exec();
+        if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
+        user.contactDetails = { ...createContactDetailsDto }
+        return await user.save();
     }
 
     async createBuisnessDetails(

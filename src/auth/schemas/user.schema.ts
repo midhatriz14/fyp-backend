@@ -1,10 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
+import { ContactDetails, ContactDetailsSchema } from './contact-details.schema';
 
 @Schema({ discriminatorKey: 'type' }) // Add discriminator key to the base schema
 export class BusinessDetails extends Document {
-  @Prop({ required: true })
-  type: string; // Discriminator key to distinguish between subdocument types
 }
 
 export const BusinessDetailsSchema = SchemaFactory.createForClass(BusinessDetails);
@@ -252,7 +251,10 @@ export class User extends Document {
   businessCategories: Types.ObjectId[];
 
   @Prop({ type: BusinessDetailsSchema }) // Single subdocument
-  businessDetails: PhotographerBusinessDetails | SalonBusinessDetails | CateringBusinessDetails | VenueBusinessDetails;
+  businessDetails?: PhotographerBusinessDetails | SalonBusinessDetails | CateringBusinessDetails | VenueBusinessDetails;
+
+  @Prop({ type: ContactDetailsSchema })
+  contactDetails?: ContactDetails;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

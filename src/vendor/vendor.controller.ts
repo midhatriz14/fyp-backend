@@ -1,11 +1,11 @@
 import { Controller, Post, Body, Get, Query, Param } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
-import { ContactDetails } from 'src/auth/schemas/contact-details.schema';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
 import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
 import { CreateVenueBusinessDetailsDto } from './dto/create-venue-business-details.dto';
 import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business-details.dto';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Controller('vendor')
 export class VendorController {
@@ -16,9 +16,12 @@ export class VendorController {
         return this.vendorService.getAllVendorsByCategoryId(categoryId);
     }
 
-    @Post('contactDetails')
-    async create(@Body() createContactDetailsDto: CreateContactDetailsDto): Promise<ContactDetails> {
-        return await this.vendorService.createContactDetails(createContactDetailsDto);
+    @Post('contactDetails/:userId')
+    async createContactDetails(
+        @Query('userId') userId: string,
+        @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
+        console.log(userId, createContactDetailsDto);
+        return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
     }
 
     @Post('buisnessDetails')

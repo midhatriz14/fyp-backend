@@ -1,6 +1,6 @@
 import { Schema, Document } from 'mongoose';
 
-export interface ContactDetails extends Document {
+export interface ContactDetails {
     brandName: string;
     brandLogo: string;
     contactNumber: string;
