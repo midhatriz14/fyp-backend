@@ -1,9 +1,9 @@
 export class CreateSalonBusinessDetailsDto {
-    staffType: string[]; // ['SOLO', 'SALON', 'HOME-BASED SALON']
+    staffType: string; // ['SOLO', 'SALON', 'HOME-BASED SALON']
     expertise: string;
     travelsToClientHome: boolean;
     cityCovered: string;
-    staffGender: string[]; // ['MALE', 'FEMALE', 'TRANSGENDER']
+    staffGender: string; // ['MALE', 'FEMALE', 'TRANSGENDER']
     minimumPrice?: number;
     description: string;
     additionalInfo?: string;
