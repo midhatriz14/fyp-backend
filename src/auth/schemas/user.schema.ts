@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { ContactDetails, ContactDetailsSchema } from './contact-details.schema';
+import { Category } from './category.schema';
 
 @Schema({ discriminatorKey: 'type' }) // Add discriminator key to the base schema
 export class BusinessDetails extends Document {
@@ -248,13 +249,22 @@ export class User extends Document {
   providerId?: string;
 
   @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Category' }] })
-  businessCategories: Types.ObjectId[];
-
-  @Prop({ type: BusinessDetailsSchema }) // Single subdocument
-  businessDetails?: PhotographerBusinessDetails | SalonBusinessDetails | CateringBusinessDetails | VenueBusinessDetails;
+  buisnessCategories: Category;
 
   @Prop({ type: ContactDetailsSchema })
   contactDetails?: ContactDetails;
+
+  @Prop({ type: SalonBusinessDetailsSchema })
+  salonBusinessDetails?: SalonBusinessDetails;
+
+  @Prop({ type: VenueBusinessDetailsSchema })
+  venueBusinessDetails?: VenueBusinessDetails;
+
+  @Prop({ type: CateringBusinessDetailsSchema })
+  cateringBusinessDetails?: CateringBusinessDetails;
+
+  @Prop({ type: PhotographerBusinessDetailsSchema })
+  photographerBusinessDetails?: PhotographerBusinessDetails;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

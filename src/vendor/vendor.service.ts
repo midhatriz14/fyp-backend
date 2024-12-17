@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { User } from '../auth/schemas/user.schema';
+import { CateringBusinessDetails, PhotographerBusinessDetails, SalonBusinessDetails, User, VenueBusinessDetails } from '../auth/schemas/user.schema';
 import { ContactDetails, ContactDetailsSchema } from './../auth/schemas/contact-details.schema';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -46,10 +46,20 @@ export class VendorService {
             CreateVenueBusinessDetailsDto |
             CreateCateringBusinessDetailsDto,
     ): Promise<User> {
-        const user = await this.userModel.findById(userId).exec();
+        const user = await this.userModel.findById(userId).populate('buisnessCategories').exec();
         if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
-        user.businessDetails = dto as any; // Embed the business details
+        if (user.buisnessCategories.name === "Venues") {
+            user.venueBusinessDetails = { ...dto } as VenueBusinessDetails;
+        } else if (user.buisnessCategories.name === "Caterings") {
+            user.cateringBusinessDetails = { ...dto } as CateringBusinessDetails;
+        } else if (user.buisnessCategories.name === "Photography") {
+            user.photographerBusinessDetails = { ...dto } as PhotographerBusinessDetails;
+        } else if (user.buisnessCategories.name === "Makeup") {
+            user.salonBusinessDetails = { ...dto } as SalonBusinessDetails;
+        } else {
+            throw new NotFoundException(`Business Category not found or not defined yet.`);
+        }
         return await user.save();
     }
 }

@@ -16,17 +16,16 @@ export class VendorController {
         return this.vendorService.getAllVendorsByCategoryId(categoryId);
     }
 
-    @Post('contactDetails/:userId')
+    @Post('contactDetails')
     async createContactDetails(
         @Query('userId') userId: string,
         @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
-        console.log(userId, createContactDetailsDto);
         return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
     }
 
     @Post('buisnessDetails')
     async createPhotographerBuisnessDetails(
-        @Param('userId') userId: string,
+        @Query('userId') userId: string,
         @Body() dto:
             CreatePhotographerBusinessDetailsDto |
             CreateSalonBusinessDetailsDto |
