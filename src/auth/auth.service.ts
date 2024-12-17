@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -7,49 +7,48 @@ import * as nodemailer from 'nodemailer';
 import { User } from './schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { Category } from './schemas/category.schema';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger("fyp")
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Category.name) private categoryModel: Model<Category>,
     private jwtService: JwtService,
   ) { }
 
   async register(registerDto: RegisterDto) {
     const { email, password, role, buisnessCategories } = registerDto;
     this.logger.log(registerDto, "Register");
-  
+
+    const category = await this.categoryModel.findById(buisnessCategories);
+    console.log(category);
+    if (!category) {
+      throw new NotFoundException('Category doesnt exists')
+    }
+
     // Ensure businessCategories contains valid ObjectIds
-    const categoriesArray = buisnessCategories?.map((id) => {
-      if (!Types.ObjectId.isValid(id)) {
-        throw new Error(`Invalid ObjectId: ${id}`);
-      }
-      return new Types.ObjectId(id); // Convert to ObjectId if valid
-    });
+    const businessCategory = new Types.ObjectId(buisnessCategories);
+    console.log("businessCategory", businessCategory)
 
-    this.logger.log(categoriesArray, "Transformed Business Categories");
-
-  
     // Check if the user already exists
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
       throw new UnauthorizedException('Email already exists');
     }
-  
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-  
+
     // Create the user
     const user = await this.userModel.create({
       ...registerDto,
-      buisnessCategories: categoriesArray,
+      buisnessCategory: category._id,
       role: role,
       password: hashedPassword,
     });
-  
-    this.logger.log(user, "User");
-  
+
     // Generate JWT token
     const token = this.jwtService.sign({ id: user._id });
     return { token };

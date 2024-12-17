@@ -248,8 +248,8 @@ export class User extends Document {
   @Prop()
   providerId?: string;
 
-  @Prop({ type: { type: MongooseSchema.Types.ObjectId, ref: 'Category' } })
-  buisnessCategories: Category;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category' })
+  buisnessCategory: any;
 
   @Prop({ type: ContactDetailsSchema })
   contactDetails?: ContactDetails;

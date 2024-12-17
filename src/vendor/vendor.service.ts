@@ -8,6 +8,7 @@ import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-
 import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
 import { CreateVenueBusinessDetailsDto } from './dto/create-venue-business-details.dto';
 import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business-details.dto';
+import { Category } from 'src/auth/schemas/category.schema';
 
 @Injectable()
 export class VendorService {
@@ -46,18 +47,22 @@ export class VendorService {
             CreateVenueBusinessDetailsDto |
             CreateCateringBusinessDetailsDto,
     ): Promise<User> {
-        const user = await this.userModel.findById(userId).populate('buisnessCategories').exec();
+        const user = await this.userModel.findById(userId).populate('buisnessCategory').exec();
+        if (!user) {
+            throw new NotFoundException(`User not found or not defined yet.`);
+        }
+        const category = user.buisnessCategory as Category;
         if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
-        if (user.buisnessCategories.name === "Venues") {
+        if (category.name === "Venues") {
             user.venueBusinessDetails = { ...dto } as VenueBusinessDetails;
-        } else if (user.buisnessCategories.name === "Caterings") {
+        } else if (category.name === "Caterings") {
             user.cateringBusinessDetails = { ...dto } as CateringBusinessDetails;
-        } else if (user.buisnessCategories.name === "Photography") {
+        } else if (category.name === "Photography") {
             user.photographerBusinessDetails = { ...dto } as PhotographerBusinessDetails;
-        } else if (user.buisnessCategories.name === "Makeup") {
+        } else if (category.name === "Makeup") {
             user.salonBusinessDetails = { ...dto } as SalonBusinessDetails;
         } else {
-            console.log("No Buisness Category", user.buisnessCategories);
+            console.log("No Buisness Category", category);
             throw new NotFoundException(`Business Category not found or not defined yet.`);
         }
         return await user.save();

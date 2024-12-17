@@ -18,7 +18,7 @@ export class RegisterDto {
   @IsOptional()
   mobileNumber?: string;
 
-  @IsArray()
+  @IsString()
   @IsOptional()
-  buisnessCategories?: string[]
+  buisnessCategories?: string
 }
