@@ -103,8 +103,8 @@ export class CateringBusinessDetails extends BusinessDetails {
   @Prop({ required: true })
   cityCovered: string;
 
-  @Prop({ type: [String], enum: ['MALE', 'FEMALE', 'TRANSGENDER'] })
-  staff: string[];
+  @Prop({ type: String, enum: ['MALE', 'FEMALE', 'TRANSGENDER'] })
+  staff: string;
 
   @Prop({ type: Boolean, default: false })
   provideFoodTesting: boolean;
@@ -157,11 +157,11 @@ export const CateringBusinessDetailsSchema = SchemaFactory.createForClass(
 @Schema()
 export class VenueBusinessDetails extends BusinessDetails {
   @Prop({
-    type: [String],
+    type: String,
     enum: ['HALL', 'OUTDOOR', 'MARQUEE/BANQUET'],
     required: true,
   })
-  typeOfVenue: string[];
+  typeOfVenue: string;
 
   @Prop({ required: true })
   expertise: string;
@@ -173,19 +173,19 @@ export class VenueBusinessDetails extends BusinessDetails {
   maximumPeopleCapacity: number;
 
   @Prop({
-    type: [String],
+    type: String,
     enum: ['INTERNAL', 'EXTERNAL'],
   })
-  catering: string[];
+  catering: string;
 
   @Prop({ type: Boolean, required: true })
   parking: boolean;
 
   @Prop({
-    type: [String],
+    type: String,
     enum: ['MALE', 'FEMALE', 'TRANSGENDER'],
   })
-  staff: string[];
+  staff: string;
 
   @Prop()
   minimumPrice: number;
@@ -215,6 +215,20 @@ export class VenueBusinessDetails extends BusinessDetails {
 export const VenueBusinessDetailsSchema = SchemaFactory.createForClass(
   VenueBusinessDetails,
 );
+
+@Schema()
+export class Package {
+  @Prop({ required: true })
+  packageName: string;
+
+  @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  services: string;
+}
+
+export const PackageSchema = SchemaFactory.createForClass(Package);
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -265,6 +279,9 @@ export class User extends Document {
 
   @Prop({ type: PhotographerBusinessDetailsSchema })
   photographerBusinessDetails?: PhotographerBusinessDetails;
+
+  @Prop({ type: [PackageSchema], default: [] })
+  packages: Package[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

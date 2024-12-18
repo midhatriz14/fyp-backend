@@ -1,11 +1,11 @@
 export class CreateVenueBusinessDetailsDto {
-    typeOfVenue: string[]; // ['HALL', 'OUTDOOR', 'MARQUEE/BANQUET']
+    typeOfVenue: string; // ['HALL', 'OUTDOOR', 'MARQUEE/BANQUET']
     expertise: string;
     amenities: string;
     maximumPeopleCapacity?: number; // Optional
-    catering?: string[]; // ['INTERNAL', 'EXTERNAL'], Optional
+    catering?: string; // ['INTERNAL', 'EXTERNAL'], Optional
     parking: boolean;
-    staff: string[]; // ['MALE', 'FEMALE', 'TRANSGENDER']
+    staff: string; // ['MALE', 'FEMALE', 'TRANSGENDER']
     minimumPrice?: number; // Optional
     description: string;
     additionalInfo?: string; // Optional

@@ -2,7 +2,7 @@ export class CreateCateringBusinessDetailsDto {
     expertise: string;
     travelsToClientHome: boolean;
     cityCovered: string;
-    staff: string[]; // ['MALE', 'FEMALE', 'TRANSGENDER']
+    staff: string; // ['MALE', 'FEMALE', 'TRANSGENDER']
     provideFoodTesting?: boolean; // Optional
     provideDecoration?: boolean; // Optional
     provideSoundSystem?: boolean; // Optional
