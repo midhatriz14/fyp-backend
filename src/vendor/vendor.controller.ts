@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('vendor')
 export class VendorController {
+    private readonly logger = new Logger("fyp")
     constructor(private vendorService: VendorService) { }
 
     @UseGuards(AuthGuard('jwt'))
@@ -30,6 +31,7 @@ export class VendorController {
         @Request() req: any,
         @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
         const userId = req.user.id;
+        this.logger.log(userId, "contactDetails");
         console.log("userId", userId);
         return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
     }
