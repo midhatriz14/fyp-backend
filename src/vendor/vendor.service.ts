@@ -27,17 +27,8 @@ export class VendorService {
             // Ensure contactDetails exists and is not null
             contactDetails: { $exists: true, $ne: null },
 
-            // Ensure salonBusinessDetails exists and is not null
-            salonBusinessDetails: { $exists: true, $ne: null },
-
-            // Ensure venueBusinessDetails exists and is not null
-            venueBusinessDetails: { $exists: true, $ne: null },
-
-            // Ensure cateringBusinessDetails exists and is not null
-            cateringBusinessDetails: { $exists: true, $ne: null },
-
-            // Ensure photographerBusinessDetails exists and is not null
-            photographerBusinessDetails: { $exists: true, $ne: null },
+            // Ensure coverImage exists and is not null
+            coverImage: { $exists: true, $ne: null },
 
             // Ensure packages array exists and is not empty
             packages: {
@@ -51,8 +42,13 @@ export class VendorService {
                 $not: { $size: 0 }
             },
 
-            // Ensure coverImage exists and is not null
-            coverImage: { $exists: true, $ne: null },
+            // At least one of the business details must exist and not be null
+            $or: [
+                { salonBusinessDetails: { $exists: true, $ne: null } },
+                { venueBusinessDetails: { $exists: true, $ne: null } },
+                { cateringBusinessDetails: { $exists: true, $ne: null } },
+                { photographerBusinessDetails: { $exists: true, $ne: null } }
+            ]
         });
 
         return vendors;
