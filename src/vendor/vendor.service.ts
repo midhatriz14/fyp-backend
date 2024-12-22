@@ -122,6 +122,7 @@ export class VendorService {
 
         // Assuming your User entity has an 'images' field which is an array of strings
         user.images = [...(user.images || []), ...imageUrls];
+        user.coverImage = imageUrls[0];
 
         // Save the updated user
         await user.save();

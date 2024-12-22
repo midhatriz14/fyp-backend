@@ -8,9 +8,8 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 import { User } from 'src/auth/schemas/user.schema';
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { diskStorage } from 'multer';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('vendor')
 export class VendorController {

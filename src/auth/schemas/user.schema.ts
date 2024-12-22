@@ -285,6 +285,9 @@ export class User extends Document {
 
   @Prop({ type: [], default: [] })
   images: string[];
+
+  @Prop()
+  coverImage: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
