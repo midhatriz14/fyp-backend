@@ -17,11 +17,8 @@ export class VendorController {
     private readonly logger = new Logger("fyp")
     constructor(private vendorService: VendorService) { }
 
-    @UseGuards(AuthGuard('jwt'))
     @Get('getVendorsByCategoryId')
     getVendorsByCategoryId(@Request() req: any, @Query('categoryId') categoryId: string) {
-        const userId = req.user.id;
-        console.log(userId);
         return this.vendorService.getAllVendorsByCategoryId(categoryId);
     }
 
