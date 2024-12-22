@@ -27,7 +27,7 @@ export class VendorController {
 
     @Post('contactDetails')
     async createContactDetails(
-        @Query() userId: string,
+        @Query("userId") userId: string,
         @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
         this.logger.log(userId, "contactDetails");
         return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
@@ -35,7 +35,7 @@ export class VendorController {
 
     @Post('buisnessDetails')
     async createPhotographerBuisnessDetails(
-        @Query() userId: string,
+        @Query("userId") userId: string,
         @Body() dto:
             CreatePhotographerBusinessDetailsDto |
             CreateSalonBusinessDetailsDto |
