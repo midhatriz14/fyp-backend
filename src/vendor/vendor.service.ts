@@ -54,13 +54,13 @@ export class VendorService {
         const category = user.buisnessCategory as Category;
         if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
         if (category.name === "Venues") {
-            user.venueBusinessDetails = { ...dto } as VenueBusinessDetails;
+            user.venueBusinessDetails = { ...dto } as unknown as VenueBusinessDetails;
         } else if (category.name === "Caterings") {
-            user.cateringBusinessDetails = { ...dto } as CateringBusinessDetails;
+            user.cateringBusinessDetails = { ...dto } as unknown as CateringBusinessDetails;
         } else if (category.name === "Photography") {
             user.photographerBusinessDetails = { ...dto } as PhotographerBusinessDetails;
         } else if (category.name === "Makeup") {
-            user.salonBusinessDetails = { ...dto } as SalonBusinessDetails;
+            user.salonBusinessDetails = { ...dto } as unknown as SalonBusinessDetails;
         } else {
             console.log("No Buisness Category", category);
             throw new NotFoundException(`Business Category not found or not defined yet.`);
