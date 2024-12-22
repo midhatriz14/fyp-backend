@@ -25,28 +25,23 @@ export class VendorController {
         return this.vendorService.getAllVendorsByCategoryId(categoryId);
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('contactDetails')
     async createContactDetails(
-        @Request() req: any,
+        @Query() userId: string,
         @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
-        const userId = req.user.id;
         this.logger.log(userId, "contactDetails");
-        console.log("userId", userId);
         return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
     }
 
-    @UseGuards(AuthGuard('jwt'))
     @Post('buisnessDetails')
     async createPhotographerBuisnessDetails(
-        @Request() req: any,
+        @Query() userId: string,
         @Body() dto:
             CreatePhotographerBusinessDetailsDto |
             CreateSalonBusinessDetailsDto |
             CreateVenueBusinessDetailsDto |
             CreateCateringBusinessDetailsDto) {
-        const userId = req.user.id;
-        console.log("userId", userId);
+        this.logger.log(userId, "buisnessDetails");
         return await this.vendorService.createBuisnessDetails(userId, dto);
     }
 

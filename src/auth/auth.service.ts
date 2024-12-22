@@ -51,7 +51,7 @@ export class AuthService {
 
     // Generate JWT token
     const token = this.jwtService.sign({ id: user._id });
-    return { token };
+    return { token, user };
   }
 
   async login(loginDto: LoginDto) {
