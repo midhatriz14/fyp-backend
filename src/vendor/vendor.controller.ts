@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -8,7 +8,7 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 import { User } from 'src/auth/schemas/user.schema';
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { diskStorage } from 'multer';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -74,9 +74,10 @@ export class VendorController {
     async getVendor(@Query('userId') userId: string) {
         return this.vendorService.getVendor(userId);
     }
+
     @Post('image')
     @UseInterceptors(
-        FileInterceptor('file', {
+        FilesInterceptor('files', 30, { // 'files' is the field name; 30 is the max number of files
             storage: diskStorage({
                 destination: './public/images', // Destination folder
                 filename: (req: any, file: any, callback: any) => {
@@ -97,19 +98,24 @@ export class VendorController {
                 callback(null, true);
             },
             limits: {
-                fileSize: 5 * 1024 * 1024, // 5MB file size limit
+                fileSize: 5 * 1024 * 1024, // 5MB file size limit per file
             },
         }),
     )
-    async uploadImage(@UploadedFile() file: any) {
-        if (!file) {
-            throw new HttpException('File not provided', HttpStatus.BAD_REQUEST);
+    async uploadImages(@Query('userId') userId: string, @UploadedFiles() files: any[]) {
+        if (!files || files.length === 0) {
+            throw new HttpException('Files not provided', HttpStatus.BAD_REQUEST);
         }
 
-        // Return the path to access the uploaded image
+        // Construct URLs for each uploaded file
+        const fileUrls = files.map(file => `/public/images/${file.filename}`);
+
+        // Optionally, you can associate these URLs with the user in your service
+        await this.vendorService.associateImagesWithUser(userId, fileUrls);
+
         return {
-            message: 'Image uploaded successfully',
-            url: `/public/images/${file.filename}`,
+            message: 'Images uploaded successfully',
+            urls: fileUrls,
         };
     }
 }

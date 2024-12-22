@@ -112,4 +112,18 @@ export class VendorService {
         if (!user) throw new NotFoundException('User not found');
         return user;
     }
+
+    async associateImagesWithUser(userId: string, imageUrls: string[]): Promise<void> {
+        // Fetch the user by userId
+        const user = await this.userModel.findById(userId);
+        if (!user) {
+            throw new NotFoundException(`User with ID ${userId} not found`);
+        }
+
+        // Assuming your User entity has an 'images' field which is an array of strings
+        user.images = [...(user.images || []), ...imageUrls];
+
+        // Save the updated user
+        await user.save();
+    }
 }

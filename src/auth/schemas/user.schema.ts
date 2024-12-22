@@ -282,6 +282,9 @@ export class User extends Document {
 
   @Prop({ type: [PackageSchema], default: [] })
   packages: Package[];
+
+  @Prop({ type: [], default: [] })
+  images: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
