@@ -23,6 +23,36 @@ export class VendorService {
         const vendors = await this.userModel.find({
             role: 'Vendor', // Ensure only vendors are returned
             buisnessCategory: new Types.ObjectId(categoryId),
+
+            // Ensure contactDetails exists and is not null
+            contactDetails: { $exists: true, $ne: null },
+
+            // Ensure salonBusinessDetails exists and is not null
+            salonBusinessDetails: { $exists: true, $ne: null },
+
+            // Ensure venueBusinessDetails exists and is not null
+            venueBusinessDetails: { $exists: true, $ne: null },
+
+            // Ensure cateringBusinessDetails exists and is not null
+            cateringBusinessDetails: { $exists: true, $ne: null },
+
+            // Ensure photographerBusinessDetails exists and is not null
+            photographerBusinessDetails: { $exists: true, $ne: null },
+
+            // Ensure packages array exists and is not empty
+            packages: {
+                $exists: true,
+                $not: { $size: 0 }
+            },
+
+            // Ensure images array exists and is not empty
+            images: {
+                $exists: true,
+                $not: { $size: 0 }
+            },
+
+            // Ensure coverImage exists and is not null
+            coverImage: { $exists: true, $ne: null },
         });
 
         return vendors;
