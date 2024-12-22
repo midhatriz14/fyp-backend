@@ -108,7 +108,7 @@ export class VendorService {
     }
 
     async getVendor(userId: string) {
-        const user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId).lean();
         const userObjToReturn = {
             ...user,
             BusinessDetails: user && user.photographerBusinessDetails
