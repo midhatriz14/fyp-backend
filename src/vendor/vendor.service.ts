@@ -17,41 +17,69 @@ export class VendorService {
     ) { }
 
     async getAllVendorsByCategoryId(categoryId: string): Promise<User[]> {
+        // Validate the categoryId
         if (!Types.ObjectId.isValid(categoryId)) {
             throw new Error('Invalid categoryId');
         }
-        const vendors = await this.userModel.find({
-            role: 'Vendor', // Ensure only vendors are returned
-            buisnessCategory: new Types.ObjectId(categoryId),
 
-            // Ensure contactDetails exists and is not null
-            contactDetails: { $exists: true, $ne: null },
-
-            // Ensure coverImage exists and is not null
-            coverImage: { $exists: true, $ne: null },
-
-            // Ensure packages array exists and is not empty
-            packages: {
-                $exists: true,
-                $not: { $size: 0 }
+        // Define the aggregation pipeline
+        const pipeline = [
+            {
+                // Match vendors with the specified category and required fields
+                $match: {
+                    role: 'Vendor',
+                    buisnessCategory: new Types.ObjectId(categoryId),
+                    contactDetails: { $exists: true, $ne: null },
+                    coverImage: { $exists: true, $ne: null },
+                    packages: { $exists: true, $not: { $size: 0 } },
+                    images: { $exists: true, $not: { $size: 0 } },
+                    $or: [
+                        { salonBusinessDetails: { $exists: true, $ne: null } },
+                        { venueBusinessDetails: { $exists: true, $ne: null } },
+                        { cateringBusinessDetails: { $exists: true, $ne: null } },
+                        { photographerBusinessDetails: { $exists: true, $ne: null } }
+                    ]
+                }
             },
-
-            // Ensure images array exists and is not empty
-            images: {
-                $exists: true,
-                $not: { $size: 0 }
+            {
+                // Add the BusinessDetails field by checking which business detail exists
+                $addFields: {
+                    BusinessDetails: {
+                        $cond: [
+                            { $ifNull: ['$salonBusinessDetails', false] },
+                            '$salonBusinessDetails',
+                            {
+                                $cond: [
+                                    { $ifNull: ['$venueBusinessDetails', false] },
+                                    '$venueBusinessDetails',
+                                    {
+                                        $cond: [
+                                            { $ifNull: ['$cateringBusinessDetails', false] },
+                                            '$cateringBusinessDetails',
+                                            '$photographerBusinessDetails' // Assumes at least one exists
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
             },
+            {
+                // Optionally, exclude the original separate business detail fields
+                $project: {
+                    salonBusinessDetails: 0,
+                    venueBusinessDetails: 0,
+                    cateringBusinessDetails: 0,
+                    photographerBusinessDetails: 0
+                }
+            }
+        ];
 
-            // At least one of the business details must exist and not be null
-            $or: [
-                { salonBusinessDetails: { $exists: true, $ne: null } },
-                { venueBusinessDetails: { $exists: true, $ne: null } },
-                { cateringBusinessDetails: { $exists: true, $ne: null } },
-                { photographerBusinessDetails: { $exists: true, $ne: null } }
-            ]
-        });
+        // Execute the aggregation pipeline
+        const vendors = await this.userModel.aggregate(pipeline).exec();
 
-        return vendors;
+        return vendors as User[];
     }
 
     async createContactDetails(
