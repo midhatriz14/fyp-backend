@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CateringBusinessDetails, PhotographerBusinessDetails, SalonBusinessDetails, User, VenueBusinessDetails } from '../auth/schemas/user.schema';
+import { BusinessDetails, CateringBusinessDetails, PhotographerBusinessDetails, SalonBusinessDetails, User, VenueBusinessDetails } from '../auth/schemas/user.schema';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
 import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
@@ -109,8 +109,20 @@ export class VendorService {
 
     async getVendor(userId: string) {
         const user = await this.userModel.findById(userId);
+        const userObjToReturn = {
+            ...user,
+            BusinessDetails: user && user.photographerBusinessDetails
+                ? user.photographerBusinessDetails :
+                user?.cateringBusinessDetails ?
+                    user.cateringBusinessDetails :
+                    user?.venueBusinessDetails ?
+                        user.venueBusinessDetails :
+                        user?.salonBusinessDetails ?
+                            user.salonBusinessDetails :
+                            undefined
+        }
         if (!user) throw new NotFoundException('User not found');
-        return user;
+        return userObjToReturn;
     }
 
     async associateImagesWithUser(userId: string, imageUrls: string[]): Promise<void> {
