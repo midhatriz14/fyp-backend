@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+     "types": ["jest", "node"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -18,15 +19,17 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "typeRoots": [
+      "typeRoots": [
       "./node_modules/@types",
       "./src/types"
     ]
   },
-  "include": [
-    "src/*/",
-    "./src/types/**/*.d.ts"
-  ],
+   "include": [
+  "src/**/*.ts",
+  "src/**/*.spec.ts",
+  "jest.config.ts"
+],
+
   "exclude": [
     "node_modules",
     "dist"
