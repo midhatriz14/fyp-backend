@@ -9,6 +9,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "start:debug": "nest start --debug --watch"
+   
   },
   "dependencies": {
     "@nestjs/common": "^10.2.8",

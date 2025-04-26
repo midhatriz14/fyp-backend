@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for getBusinessDetails 1`] = `
+{
+  "salonBusinessDetails": {
+    "salonName": "Glamour Salon",
+  },
+}
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for getContactDetails 1`] = `
+{
+  "phone": "1234567890",
+}
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for getPackages 1`] = `
+[
+  {
+    "packageName": "Silver Package",
+    "price": 5000,
+  },
+]
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for getVendor 1`] = `
+{
+  "BusinessDetails": {
+    "name": "John",
+  },
+  "photographerBusinessDetails": {
+    "name": "John",
+  },
+}
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for vendor with no business details 1`] = `
+{
+  "BusinessDetails": undefined,
+}
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for vendor with only catering details 1`] = `
+{
+  "BusinessDetails": {
+    "name": "Catering Only",
+  },
+  "cateringBusinessDetails": {
+    "name": "Catering Only",
+  },
+}
+`;
+
+exports[`VendorService VendorService - Snapshot Testing should match snapshot for vendor with only venue details 1`] = `
+{
+  "BusinessDetails": {
+    "name": "Venue Only",
+  },
+  "venueBusinessDetails": {
+    "name": "Venue Only",
+  },
+}
+`;
