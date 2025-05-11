@@ -6,6 +6,7 @@ import { CategoryModule } from './category/category.module';
 import { VendorModule } from './vendor/vendor.module';
 import { MessagesModule } from './messages/messages.module';
 import { ChatModule } from './chat/chat.module';
+import { OrderModule } from './order/order.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
@@ -19,6 +20,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     VendorModule,
     MessagesModule,
     ChatModule,
+    OrderModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
