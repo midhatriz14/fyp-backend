@@ -10,6 +10,12 @@ export class Order extends Document {
     vendorOrders: Types.ObjectId[];
 
     @Prop({ required: true })
+    eventName: string;
+
+    @Prop({ required: true })
+    guests: number;
+
+    @Prop({ required: true })
     eventDate: Date;
 
     @Prop({ required: true })

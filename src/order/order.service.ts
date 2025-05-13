@@ -20,6 +20,8 @@ export class OrderService {
             serviceName: string;
             price: number;
         }[],
+        eventName: string,
+        guests: number,
     ) {
         const totalAmount = services.reduce((sum, s) => sum + s.price, 0);
         const discount = totalAmount * 0.1; // Apply a 10% discount
@@ -33,6 +35,8 @@ export class OrderService {
             totalAmount,
             discount,
             finalAmount,
+            eventName,
+            guests
         });
 
         const savedOrder = await order.save();
