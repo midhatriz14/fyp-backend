@@ -1,0 +1,188 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for discount calculation with large total 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 500,
+  "eventDate": 2025-05-17T00:00:00.000Z,
+  "eventTime": "7PM",
+  "finalAmount": 4500,
+  "organizerId": "org5",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 5000,
+  "vendorOrders": [
+    "vendor-snap-id",
+  ],
+}
+`;
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for empty service list 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 0,
+  "eventDate": 2025-05-16T00:00:00.000Z,
+  "eventTime": "4PM",
+  "finalAmount": 0,
+  "organizerId": "org4",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 0,
+  "vendorOrders": [],
+}
+`;
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for mixed service types 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 250,
+  "eventDate": 2025-05-18T00:00:00.000Z,
+  "eventTime": "9PM",
+  "finalAmount": 2250,
+  "organizerId": "org6",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 2500,
+  "vendorOrders": [
+    "vendor-snap-id",
+    "vendor-snap-id",
+    "vendor-snap-id",
+  ],
+}
+`;
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for multiple vendor services 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 120,
+  "eventDate": 2025-05-14T00:00:00.000Z,
+  "eventTime": "8PM",
+  "finalAmount": 1080,
+  "organizerId": "org2",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 1200,
+  "vendorOrders": [
+    "vendor-snap-id",
+    "vendor-snap-id",
+  ],
+}
+`;
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for order creation result 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 100,
+  "eventDate": 2025-05-13T00:00:00.000Z,
+  "eventTime": "6PM",
+  "finalAmount": 900,
+  "organizerId": "org1",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 1000,
+  "vendorOrders": [
+    "vendor-snap-id",
+  ],
+}
+`;
+
+exports[`Snapshot Testing - OrderService Responses matches snapshot for zero-price service 1`] = `
+{
+  "_id": "order-snap-id",
+  "discount": 0,
+  "eventDate": 2025-05-15T00:00:00.000Z,
+  "eventTime": "5PM",
+  "finalAmount": 0,
+  "organizerId": "org3",
+  "save": [MockFunction] {
+    "calls": [
+      [],
+      [],
+    ],
+    "results": [
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+      {
+        "type": "return",
+        "value": Promise {},
+      },
+    ],
+  },
+  "totalAmount": 0,
+  "vendorOrders": [
+    "vendor-snap-id",
+  ],
+}
+`;
