@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param } from "@nestjs/common";
+import { Controller, Post, Body, Patch, Param, Get, Delete, Query } from "@nestjs/common";
 import { OrderService } from "./order.service";
 
 @Controller('orders')
@@ -19,6 +19,7 @@ export class OrderController {
         }[];
     }) {
         try {
+            console.log(body.eventName, body.services)
             // Call the service to create the order
             const order = await this.orderService.createOrder(
                 body.organizerId,
@@ -51,5 +52,27 @@ export class OrderController {
     @Patch('complete-order/:id')
     async completeOrder(@Param('id') orderId: string) {
         return this.orderService.confirmOrderCompletion(orderId);
+    }
+
+    // Get all orders with status filtering
+    @Get()
+    async getOrders(
+        @Query('status') status?: string,
+        @Query('limit') limit = 10,
+        @Query('skip') skip = 0,
+    ) {
+        return this.orderService.getOrders(status, limit, skip);
+    }
+
+    // Get order stats (pending, processing, completed)
+    @Get('stats')
+    async getOrderStats() {
+        return this.orderService.getOrderStats();
+    }
+
+    // Delete an order
+    @Delete(':id')
+    async deleteOrder(@Param('id') orderId: string) {
+        return this.orderService.deleteOrder(orderId);
     }
 }
