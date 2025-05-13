@@ -9,6 +9,7 @@ import { ChatModule } from './chat/chat.module';
 import { OrderModule } from './order/order.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EcardModule } from './e-card/e-card.module';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
     }),
+    EcardModule,
   ],
 })
 export class AppModule { }
