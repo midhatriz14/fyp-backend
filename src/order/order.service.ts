@@ -22,9 +22,10 @@ export class OrderService {
         }[],
     ) {
         const totalAmount = services.reduce((sum, s) => sum + s.price, 0);
-        const discount = totalAmount * 0.1;
+        const discount = totalAmount * 0.1; // Apply a 10% discount
         const finalAmount = totalAmount - discount;
 
+        // Create the main order
         const order = new this.orderModel({
             organizerId,
             eventDate,
@@ -36,6 +37,7 @@ export class OrderService {
 
         const savedOrder = await order.save();
 
+        // Create vendor orders for each service
         const vendorOrders = await Promise.all(
             services.map(async (service) => {
                 const vendorOrder = new this.vendorOrderModel({

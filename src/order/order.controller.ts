@@ -16,12 +16,19 @@ export class OrderController {
             price: number;
         }[];
     }) {
-        return this.orderService.createOrder(
-            body.organizerId,
-            new Date(body.eventDate),
-            body.eventTime,
-            body.services
-        );
+        try {
+            // Call the service to create the order
+            const order = await this.orderService.createOrder(
+                body.organizerId,
+                new Date(body.eventDate),
+                body.eventTime,
+                body.services
+            );
+            return order;
+        } catch (error) {
+            console.error('Error placing order:', error);
+            throw new Error('Failed to place order');
+        }
     }
 
     @Patch('vendor-response/:id')
