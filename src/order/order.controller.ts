@@ -10,6 +10,8 @@ export class OrderController {
         organizerId: string;
         eventDate: string;
         eventTime: string;
+        eventName: string;
+        guests: number;
         services: {
             vendorId: string;
             serviceName: string;
@@ -22,7 +24,9 @@ export class OrderController {
                 body.organizerId,
                 new Date(body.eventDate),
                 body.eventTime,
-                body.services
+                body.services,
+                body.eventName,
+                body.guests,
             );
             return order;
         } catch (error) {
