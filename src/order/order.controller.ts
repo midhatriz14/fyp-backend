@@ -63,14 +63,19 @@ export class OrderController {
         @Query('limit') limit = 10,
         @Query('skip') skip = 0,
     ) {
-        return this.orderService.getOrders(type, userId, status, limit, skip);  // Pass userId to service
+        const orders = await this.orderService.getOrders(type, userId, status, limit, skip);  // Pass userId to service
+        console.log(orders);
+        return orders;
     }
 
 
     // Get order stats (pending, processing, completed)
     @Get('stats')
-    async getOrderStats() {
-        return this.orderService.getOrderStats();
+    async getOrderStats(
+        @Query('type') type: string,
+        @Query('userId') userId: string,
+    ) {
+        return this.orderService.getOrderStats(type, userId);
     }
 
     // Delete an order

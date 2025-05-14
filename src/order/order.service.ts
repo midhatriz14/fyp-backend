@@ -64,7 +64,6 @@ export class OrderService {
     }
 
 
-    // Get orders based on type (Organizer or Vendor)
     async getOrders(
         type: string,
         userId: string,
@@ -72,17 +71,32 @@ export class OrderService {
         limit = 10,
         skip = 0,
     ): Promise<Order[]> {
+        let userIdObj;
+        if (typeof userId === 'string') {
+            userIdObj = new Types.ObjectId(userId);  // Convert userId to ObjectId
+        }
+
         const query: any = {
             ...(status && { status }),  // Optional status filter
         };
 
-        // Check type and modify query accordingly
-        if (type === 'Organizer') {
-            query.organizerId = userId;  // Filter orders by organizerId
-        } else if (type === 'Vendor') {
-            query.vendorOrders = { $elemMatch: { vendorId: userId } };  // Filter by vendorId in vendorOrders array
+        // Step 1: Fetch VendorOrders that match the vendorId
+        if (type === 'Vendor') {
+            const vendorOrders = await this.vendorOrderModel.find({ vendorId: userIdObj });
+
+            // Get the ObjectIds of matched VendorOrders
+            const vendorOrderIds = vendorOrders.map(order => order._id);
+
+            // Use the $in operator to query Orders with vendorOrders matching the vendorOrderIds
+            query.vendorOrders = { $in: vendorOrderIds };
+        } else if (type === 'Organizer') {
+            // Step 2: For 'Organizer', filter orders by organizerId
+            query.organizerId = userIdObj;  // Filter by organizerId
         }
 
+        console.log('Final query:', query);  // Log the final query for debugging
+
+        // Step 3: Execute the query
         return this.orderModel
             .find(query)
             .skip(skip)
@@ -99,14 +113,34 @@ export class OrderService {
     }
 
 
+    // Get order stats (pending, processing, completed) for Vendor or Organizer
+    async getOrderStats(type: string, userId: string) {
+        let userIdObj;
+        if (typeof userId === 'string') {
+            userIdObj = new Types.ObjectId(userId);  // Convert userId to ObjectId
+        }
 
+        const query: any = {};
 
-    // Get order stats (pending, processing, completed)
-    async getOrderStats() {
-        const totalOrders = await this.orderModel.countDocuments();
-        const pending = await this.orderModel.countDocuments({ status: 'pending' });
-        const processing = await this.orderModel.countDocuments({ status: 'processing' });
-        const completed = await this.orderModel.countDocuments({ status: 'completed' });
+        // Step 1: Apply filter based on type (Vendor or Organizer)
+        if (type === 'Organizer') {
+            query.organizerId = userIdObj;  // Filter by organizerId
+        } else if (type === 'Vendor') {
+            // Fetch VendorOrders that match the vendorId
+            const vendorOrders = await this.vendorOrderModel.find({ vendorId: userIdObj });
+
+            // Get the ObjectIds of matched VendorOrders
+            const vendorOrderIds = vendorOrders.map(order => order._id);
+
+            // Use the $in operator to query Orders with vendorOrders matching the vendorOrderIds
+            query.vendorOrders = { $in: vendorOrderIds };
+        }
+
+        // Step 2: Calculate stats based on the query
+        const totalOrders = await this.orderModel.countDocuments(query);
+        const pending = await this.orderModel.countDocuments({ ...query, status: 'pending' });
+        const processing = await this.orderModel.countDocuments({ ...query, status: 'processing' });
+        const completed = await this.orderModel.countDocuments({ ...query, status: 'completed' });
 
         return {
             totalOrders,
@@ -115,6 +149,7 @@ export class OrderService {
             completed,
         };
     }
+
 
     // Update the status of an order to "completed"
     async completeOrder(orderId: string): Promise<Order> {
