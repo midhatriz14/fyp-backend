@@ -57,9 +57,18 @@ export class ChatService {
             .exec();
     }
 
+    // Get all messages for a conversation (chatId)
+    async getConversationMessages(chatId: string): Promise<Message[]> {
+        return this.messageModel
+            .find({ chatId })
+            .sort({ timestamp: -1 })  // Sort messages by timestamp to get the correct order
+            .exec();
+    }
+
     // Create a new message for a conversation
     async createMessage(chatId: string, senderId: string, content: string): Promise<Message> {
         const message = new this.messageModel({ chatId, senderId, message: content, receiverId: senderId });
+        await this.conversationModel.updateOne({ chatId, lastMessage: message });
         return message.save();
     }
 

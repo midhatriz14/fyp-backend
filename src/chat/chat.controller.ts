@@ -21,5 +21,12 @@ export class ChatController {
         const conversations = await this.chatService.getUserConversations(userId);
         return { conversations };
     }
+
+    // Get all messages in a conversation
+    @Get('messages/:chatId')
+    async getConversationMessages(@Param('chatId') chatId: string) {
+        const messages = await this.chatService.getConversationMessages(chatId);
+        return { messages };
+    }
 }
 
