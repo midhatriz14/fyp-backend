@@ -30,9 +30,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     handleConnection(client: Socket, ...args: any[]) {
         this.logger.log(`Client connected: ${client.id}`);
-        // Optionally send existing messages to the newly connected client
-        this.chatService.getAllMessages().then((messages) => {
-            client.emit('previousMessages', messages);
+
+        // Optionally, send existing conversations to the newly connected client
+        this.chatService.getUserConversations(client.id).then((conversations) => {
+            client.emit('conversationList', conversations);
         });
     }
 
@@ -40,10 +41,27 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         this.logger.log(`Client disconnected: ${client.id}`);
     }
 
+    // User sends a message
     @SubscribeMessage('sendMessage')
-    async handleMessage(client: Socket, payload: { user: string; content: string }) {
-        this.logger.log(`Received message from ${payload.user}: ${payload.content}`);
-        const message = await this.chatService.createMessage(payload.user, payload.content);
-        this.server.emit('newMessage', message); // Broadcast the new message to all clients
+    async handleMessage(client: Socket, payload: { user: string; chatId: string; content: string }) {
+        this.logger.log(`Received message from ${payload.user}: ${payload.content} in chatId: ${payload.chatId}`);
+
+        // Create and save the message in the database
+        const message = await this.chatService.createMessage(payload.chatId, payload.user, payload.content);
+
+        // Emit message to all users in the same conversation
+        this.server.to(payload.chatId).emit('newMessage', message); // Broadcast the new message to all clients in that conversation
+    }
+
+    // User joins a conversation
+    @SubscribeMessage('joinConversation')
+    handleJoinConversation(client: Socket, chatId: string) {
+        client.join(chatId); // Join the chat room for that conversation
+        this.logger.log(`Client ${client.id} joined chat room ${chatId}`);
+
+        // Optionally, send existing messages to the user when they join
+        this.chatService.getMessagesForConversation(chatId).then((messages) => {
+            client.emit('previousMessages', messages);
+        });
     }
 }
