@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles } from '@nestjs/common';
-import { VendorService } from './vendor.service';
+import { SmartPackageInput, VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
 import { CreateSalonBusinessDetailsDto } from './dto/create-salon-business-details.dto';
@@ -69,6 +69,11 @@ export class VendorController {
     @Get()
     async getVendor(@Query('userId') userId: string) {
         return this.vendorService.getVendor(userId);
+    }
+
+    @Post('ai-package')
+    async getSmartPackage(@Body() smartPackageDto: SmartPackageInput,) {
+        return this.vendorService.generateSmartPackage(smartPackageDto);
     }
 
     @Post('image')

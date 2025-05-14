@@ -47,6 +47,8 @@ export class AuthService {
       buisnessCategory: category._id,
       role: role,
       password: hashedPassword,
+      phone_number: registerDto.mobileNumber,
+      address: registerDto.address
     });
 
     // Generate JWT token

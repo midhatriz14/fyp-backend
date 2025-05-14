@@ -10,6 +10,21 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { Category } from 'src/auth/schemas/category.schema';
 
+interface VendorPackage {
+    vendorId: string;
+    packageName: string;
+    price: number;
+    services: string;  // consider changing to array for better matching
+    maximumCapacity?: number;
+}
+
+export interface SmartPackageInput {
+    eventName: string;
+    eventDate: Date;
+    guests: number;
+    services: string[];  // services requested by user
+}
+
 @Injectable()
 export class VendorService {
     constructor(
@@ -193,4 +208,50 @@ export class VendorService {
         // Save the updated user
         await user.save();
     }
+
+    async generateSmartPackage(input: SmartPackageInput): Promise<any> {
+        // 1. Fetch all vendors (or you can filter by location, etc. if needed)
+        const allVendors = await this.userModel.find();
+        // 2. Filter packages by matching all requested services AND capacity
+        const matchingPackages: VendorPackage[] = [];
+
+        allVendors.forEach(vendor => {
+            vendor.packages.forEach(pkg => {
+                // Capacity check (if defined)
+                const maxCapacity = vendor.venueBusinessDetails?.maximumPeopleCapacity ?? Infinity;
+                if (input.guests > maxCapacity) {
+                    return; // skip packages if capacity insufficient
+                }
+
+                // Check if package services include all requested services (simple substring match)
+                // Convert package services string to lowercase for comparison
+                const packageServicesLower = pkg.services.toLowerCase();
+
+                const allServicesMatch = input.services.every(service =>
+                    packageServicesLower.includes(service.toLowerCase())
+                );
+
+                if (allServicesMatch) {
+                    matchingPackages.push({
+                        vendorId: vendor._id.toString(),
+                        packageName: pkg.packageName,
+                        price: pkg.price,
+                        services: pkg.services,
+                        maximumCapacity: maxCapacity,
+                    });
+                }
+            });
+        });
+
+        // 3. Select the cheapest package matching criteria
+        const cheapestPackage = matchingPackages.sort((a, b) => a.price - b.price)[0];
+        console.log(cheapestPackage);
+        return {
+            eventName: input.eventName,
+            eventDate: input.eventDate,
+            guests: input.guests,
+            package: cheapestPackage || null,
+        };
+    }
+
 }

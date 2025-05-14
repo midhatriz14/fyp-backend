@@ -248,6 +248,9 @@ export class User extends Document {
   phone_number: string;
 
   @Prop()
+  address: string;
+
+  @Prop()
   city: string;
 
   @Prop()
