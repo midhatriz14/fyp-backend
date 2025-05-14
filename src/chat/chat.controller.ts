@@ -1,5 +1,5 @@
 // src/chat/conversation.controller.ts
-import { Controller, Post, Param, Body } from '@nestjs/common';
+import { Controller, Post, Param, Body, Get } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -14,4 +14,12 @@ export class ChatController {
         const chatId = await this.chatService.createOrGetConversation(userId, vendorId);
         return { chatId }; // Return the chatId (either from existing or newly created)
     }
+
+    // API to get conversation list for a user
+    @Get(':userId')
+    async getConversationList(@Param('userId') userId: string) {
+        const conversations = await this.chatService.getUserConversations(userId);
+        return { conversations };
+    }
 }
+

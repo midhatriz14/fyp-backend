@@ -44,7 +44,17 @@ export class ChatService {
 
     // Get all conversations for a user
     async getUserConversations(userId: string): Promise<Conversation[]> {
-        return this.conversationModel.find({ participants: userId }).exec();
+        return this.conversationModel
+            .find({ participants: userId })
+            .populate({
+                path: 'participants',
+                match: { _id: { $ne: userId } }, // Exclude the participant with matching userId
+            })
+            .populate({
+                path: 'lastMessage', // Populate last message
+                select: 'message timestamp', // Select only the necessary fields (e.g., message text and timestamp)
+            })
+            .exec();
     }
 
     // Create a new message for a conversation
