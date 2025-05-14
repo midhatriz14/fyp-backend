@@ -64,23 +64,28 @@ export class OrderService {
     }
 
 
-    // Get orders with status filtering, limit and skip for pagination
-    async getOrders(status?: string, limit = 10, skip = 0): Promise<Order[]> {
-        const query: any = status ? { status } : {}; // Optional status filter
+    // Get orders with status filtering, limit, skip for pagination, and userId
+    async getOrders(userId: string, status?: string, limit = 10, skip = 0): Promise<Order[]> {
+        const query: any = {
+            ...status && { status },  // Optional status filter
+            userId,  // Add userId filter
+        };
+
         return this.orderModel
             .find(query)
             .skip(skip)
             .limit(limit)
-            .populate('organizerId') // Populate organizer details
+            .populate('organizerId')  // Populate organizer details
             .populate({
-                path: 'vendorOrders', // Populate vendorOrders subdocument
+                path: 'vendorOrders',  // Populate vendorOrders subdocument
                 populate: {
-                    path: 'vendorId', // Populate vendor details inside each vendorOrder
+                    path: 'vendorId',  // Populate vendor details inside each vendorOrder
                     model: 'User',  // Specify the 'Vendor' model to populate vendor info
                 },
             })
             .exec();
     }
+
 
 
     // Get order stats (pending, processing, completed)
