@@ -8,6 +8,7 @@ import { User } from './schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Category } from './schemas/category.schema';
+import { UpdateUserProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -119,5 +120,13 @@ export class AuthService {
 
     const token = this.jwtService.sign({ id: user._id });
     return { token };
+  }
+
+  async updateUser(updateDto: UpdateUserProfileDto): Promise<User> {
+    const updatedUser = await this.userModel.findByIdAndUpdate(updateDto.userId, updateDto, { new: true });
+    if (!updatedUser) {
+      throw new NotFoundException('User not found');
+    }
+    return updatedUser;
   }
 }
