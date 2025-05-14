@@ -20,7 +20,7 @@ describe('Unit Testing - OrderService Methods', () => {
   let mockVendorOrderModel: any;
 
 
- beforeEach(() => {
+  beforeEach(() => {
     const mockOrderModel = {
       create: jest.fn().mockResolvedValue({ _id: 'order123', vendorOrders: [] }),
       findByIdAndUpdate: jest.fn().mockResolvedValue({ status: 'completed' }),
@@ -30,7 +30,7 @@ describe('Unit Testing - OrderService Methods', () => {
     };
 
     class OrderServiceMock {
-      constructor(private orderModel: any, private vendorOrderModel: any) {}
+      constructor(private orderModel: any, private vendorOrderModel: any) { }
 
       async createOrder(organizerId: string, eventDate: Date, eventTime: string, services: any[]) {
         const order = await this.orderModel.create({ organizerId, eventDate, eventTime });
@@ -46,38 +46,38 @@ describe('Unit Testing - OrderService Methods', () => {
     expect(service).toBeDefined();
   });
 
-it('should calculate total and create order', async () => {
+  it('should calculate total and create order', async () => {
     const res = await service.createOrder('org123', new Date(), '6PM', [
       { vendorId: 'v1', serviceName: 'Photography', price: 1000 },
     ]);
     expect(res).toHaveProperty('_id', 'order123');
   });
 
-it('should return vendorOrder after updateVendorResponse', async () => {
-  service.updateVendorResponse = jest.fn().mockResolvedValue({ status: 'accepted' });
+  it('should return vendorOrder after updateVendorResponse', async () => {
+    service.updateVendorResponse = jest.fn().mockResolvedValue({ status: 'accepted' });
 
-  const result = await service.updateVendorResponse('vendorOrder1', 'accepted');
+    const result = await service.updateVendorResponse('vendorOrder1', 'accepted');
 
-  expect(result).toBeDefined();
-  expect(result.status).toBe('accepted');
-});
+    expect(result).toBeDefined();
+    expect(result.status).toBe('accepted');
+  });
 
-it('should complete vendor order', async () => {
-  service.completeVendorOrder = jest.fn().mockResolvedValue({ orderId: 'order123', status: 'accepted' });
+  it('should complete vendor order', async () => {
+    service.completeVendorOrder = jest.fn().mockResolvedValue({ orderId: 'order123', status: 'accepted' });
 
-  const result = await service.completeVendorOrder('vendorOrder1');
+    const result = await service.completeVendorOrder('vendorOrder1');
 
-  expect(result).toEqual({ orderId: 'order123', status: 'accepted' });
-});
+    expect(result).toEqual({ orderId: 'order123', status: 'accepted' });
+  });
 
-it('should confirm order completion', async () => {
-  service.confirmOrderCompletion = jest.fn().mockResolvedValue({ status: 'completed' });
+  it('should confirm order completion', async () => {
+    service.confirmOrderCompletion = jest.fn().mockResolvedValue({ status: 'completed' });
 
-  const result = await service.confirmOrderCompletion('order123');
+    const result = await service.confirmOrderCompletion('order123');
 
-  expect(result).not.toBeNull();
-  expect(result.status).toBe('completed');
-});
+    expect(result).not.toBeNull();
+    expect(result.status).toBe('completed');
+  });
 
 });
 
@@ -92,17 +92,17 @@ describe('Schema Validation Testing - Mongoose Structure', () => {
     }
   });
 
-it('validates correct Order object', () => {
-  const order = {
-    organizerId: new Types.ObjectId(),
-    eventDate: new Date(),
-    eventTime: '5PM',
-    totalAmount: 2000,
-    discount: 200,
-    finalAmount: 1800,
-  };
-  expect(order).toHaveProperty('organizerId');
-});
+  it('validates correct Order object', () => {
+    const order = {
+      organizerId: new Types.ObjectId(),
+      eventDate: new Date(),
+      eventTime: '5PM',
+      totalAmount: 2000,
+      discount: 200,
+      finalAmount: 1800,
+    };
+    expect(order).toHaveProperty('organizerId');
+  });
 
   it('fails if VendorOrder missing orderId', async () => {
     try {
@@ -114,14 +114,14 @@ it('validates correct Order object', () => {
   });
 
   it('passes valid VendorOrder', () => {
-  const vo = {
-    orderId: new Types.ObjectId(),
-    vendorId: new Types.ObjectId(),
-    serviceName: 'Photography',
-    price: 1000,
-  };
-  expect(vo).toHaveProperty('vendorId');
-});
+    const vo = {
+      orderId: new Types.ObjectId(),
+      vendorId: new Types.ObjectId(),
+      serviceName: 'Photography',
+      price: 1000,
+    };
+    expect(vo).toHaveProperty('vendorId');
+  });
 
   it('enforces price must be a number', async () => {
     try {
@@ -152,54 +152,54 @@ describe('Integration Testing - Service & Model', () => {
     service = new OrderService(mockOrderModel, mockVendorOrderModel);
   });
 
- it('updates vendor response and confirms order if all accepted', async () => {
-  const result = await service.updateVendorResponse('v1', 'accepted');
+  it('updates vendor response and confirms order if all accepted', async () => {
+    const result = await service.updateVendorResponse('v1', 'accepted');
 
-  if (typeof result === 'string') {
-    expect(result).toBe('Order not found');
-  } else {
-    expect(result.status).toBe('accepted');
-    expect(mockOrderModel.findByIdAndUpdate).toHaveBeenCalledWith('123', { status: 'confirmed' });
-  }
-});
+    if (typeof result === 'string') {
+      expect(result).toBe('Order not found');
+    } else {
+      expect(result.status).toBe('accepted');
+      expect(mockOrderModel.findByIdAndUpdate).toHaveBeenCalledWith('123', { status: 'confirmed' });
+    }
+  });
 
-it('marks vendor order as completed', async () => {
-  const result = await service.completeVendorOrder('v1');
+  it('marks vendor order as completed', async () => {
+    const result = await service.completeVendorOrder('v1');
 
-  expect(result).not.toBeNull(); // Null check first
-  if (result) {
-    expect(result.status).toBe('accepted');
-    expect(mockVendorOrderModel.findByIdAndUpdate).toHaveBeenCalledWith(
-      'v1',
-      { status: 'completed' },
-      { new: true }
-    );
-  }
-});
+    expect(result).not.toBeNull(); // Null check first
+    if (result) {
+      expect(result.status).toBe('accepted');
+      expect(mockVendorOrderModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        'v1',
+        { status: 'completed' },
+        { new: true }
+      );
+    }
+  });
 
   it('marks full order as completed', async () => {
-  const result = await service.confirmOrderCompletion('123');
+    const result = await service.confirmOrderCompletion('123');
 
-  expect(result).not.toBeNull(); // ✅ null check
-  if (result) {
-    expect(result.status).toBe('confirmed');
-  }
-});
+    expect(result).not.toBeNull(); // ✅ null check
+    if (result) {
+      expect(result.status).toBe('confirmed');
+    }
+  });
 
   it('handles multiple vendor orders', async () => {
-  mockVendorOrderModel.find = jest.fn().mockResolvedValue([
-    { status: 'accepted' },
-    { status: 'accepted' },
-  ]);
+    mockVendorOrderModel.find = jest.fn().mockResolvedValue([
+      { status: 'accepted' },
+      { status: 'accepted' },
+    ]);
 
-  const result = await service.updateVendorResponse('v1', 'accepted');
+    const result = await service.updateVendorResponse('v1', 'accepted');
 
-  if (typeof result === 'string') {
-    expect(result).toBe('Order not found');
-  } else {
-    expect(result.status).toBe('accepted');
-  }
-});
+    if (typeof result === 'string') {
+      expect(result).toBe('Order not found');
+    } else {
+      expect(result.status).toBe('accepted');
+    }
+  });
 
 });
 
@@ -223,24 +223,24 @@ describe('Edge Cases', () => {
   });
 
   it('handles vendorOrder rejection', async () => {
-  const mockRejectedOrder = {
-    orderId: 'order1',
-    status: 'rejected',
-  };
-  service['vendorOrderModel'].findByIdAndUpdate = jest.fn().mockResolvedValue(mockRejectedOrder);
-  service['vendorOrderModel'].find = jest.fn().mockResolvedValue([
-    { status: 'accepted' },
-    { status: 'rejected' },
-  ]);
+    const mockRejectedOrder = {
+      orderId: 'order1',
+      status: 'rejected',
+    };
+    service['vendorOrderModel'].findByIdAndUpdate = jest.fn().mockResolvedValue(mockRejectedOrder);
+    service['vendorOrderModel'].find = jest.fn().mockResolvedValue([
+      { status: 'accepted' },
+      { status: 'rejected' },
+    ]);
 
-  const result = await service.updateVendorResponse('vendorOrderId', 'rejected');
+    const result = await service.updateVendorResponse('vendorOrderId', 'rejected');
 
-  if (typeof result === 'string') {
-    expect(result).toBe('Order not found');
-  } else {
-    expect(result.status).toBe('rejected');
-  }
-});
+    if (typeof result === 'string') {
+      expect(result).toBe('Order not found');
+    } else {
+      expect(result.status).toBe('rejected');
+    }
+  });
 
   it('does not crash on empty vendorOrders', async () => {
     service['vendorOrderModel'].findByIdAndUpdate = jest.fn().mockResolvedValue({
@@ -337,14 +337,14 @@ describe('Order Calculation Logic Testing', () => {
     const order = await service.createOrder('org1', new Date(), '6PM', [
       { vendorId: 'v1', serviceName: 'Sound', price: 1000 },
       { vendorId: 'v2', serviceName: 'Decor', price: 500 },
-    ]);
+    ], "ABC", 6000);
     expect(order.totalAmount).toBe(1500);
   });
 
   it('applies 10% discount correctly', async () => {
     const order = await service.createOrder('org1', new Date(), '6PM', [
       { vendorId: 'v1', serviceName: 'Photography', price: 2000 },
-    ]);
+    ], "ABC", 6000);
     expect(order.discount).toBe(200);
   });
 
@@ -352,21 +352,21 @@ describe('Order Calculation Logic Testing', () => {
     const order = await service.createOrder('org1', new Date(), '6PM', [
       { vendorId: 'v1', serviceName: 'Venue', price: 1000 },
       { vendorId: 'v2', serviceName: 'Lighting', price: 1000 },
-    ]);
+    ], "ABC", 6000);
     expect(order.finalAmount).toBe(1800);
   });
 
   it('handles zero-price services', async () => {
     const order = await service.createOrder('org1', new Date(), '6PM', [
       { vendorId: 'v1', serviceName: 'Free Demo', price: 0 },
-    ]);
+    ], "ABC", 6000);
     expect(order.totalAmount).toBe(0);
     expect(order.discount).toBe(0);
     expect(order.finalAmount).toBe(0);
   });
 
   it('works correctly with empty service list', async () => {
-    const order = await service.createOrder('org1', new Date(), '6PM', []);
+    const order = await service.createOrder('org1', new Date(), '6PM', [], "ABC", 6000);
     expect(order.totalAmount).toBe(0);
     expect(order.discount).toBe(0);
     expect(order.finalAmount).toBe(0);
@@ -402,52 +402,52 @@ describe('Vendor Order Creation Workflow', () => {
       { vendorId: 'v1', serviceName: 'Photography', price: 1000 },
       { vendorId: 'v2', serviceName: 'Catering', price: 1500 },
     ];
-    const result = await service.createOrder('org123', new Date(), '8PM', services);
+    const result = await service.createOrder('org123', new Date(), '8PM', services, "ABC", 6000);
     expect(result.vendorOrders.length).toBe(2);
   });
 
   it('assigns vendorOrder IDs to savedOrder', async () => {
     const result = await service.createOrder('org123', new Date(), '7PM', [
       { vendorId: 'v1', serviceName: 'DJ', price: 500 },
-    ]);
+    ], "ABC", 6000);
     expect(result.vendorOrders).toContain('v1');
   });
 
- it('saves the order twice (initial and after assigning vendorOrders)', async () => {
-  const orderInstance = new MockOrderModel({});
-  const saveSpy = jest.spyOn(orderInstance, 'save');
-  const vendorInstance = new MockVendorOrderModel({});
-  
-  (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
-  (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
+  it('saves the order twice (initial and after assigning vendorOrders)', async () => {
+    const orderInstance = new MockOrderModel({});
+    const saveSpy = jest.spyOn(orderInstance, 'save');
+    const vendorInstance = new MockVendorOrderModel({});
 
-  await service.createOrder('org123', new Date(), '9PM', [
-    { vendorId: 'v1', serviceName: 'Venue', price: 2000 },
-  ]);
+    (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
+    (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
 
-  expect(saveSpy).toHaveBeenCalledTimes(2);
-});
- 
+    await service.createOrder('org123', new Date(), '9PM', [
+      { vendorId: 'v1', serviceName: 'Venue', price: 2000 },
+    ], "ABC", 6000);
+
+    expect(saveSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('creates vendor orders asynchronously', async () => {
-  const orderInstance = new MockOrderModel({});
-  const vendorInstance = new MockVendorOrderModel({});
-  const vendorSpy = jest.spyOn(vendorInstance, 'save');
+    const orderInstance = new MockOrderModel({});
+    const vendorInstance = new MockVendorOrderModel({});
+    const vendorSpy = jest.spyOn(vendorInstance, 'save');
 
-  (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
-  (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
+    (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
+    (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
 
-  await service.createOrder('org123', new Date(), '6PM', [
-    { vendorId: 'v1', serviceName: 'Photography', price: 1200 },
-  ]);
+    await service.createOrder('org123', new Date(), '6PM', [
+      { vendorId: 'v1', serviceName: 'Photography', price: 1200 },
+    ], "ABC", 6000);
 
-  expect(vendorSpy).toHaveBeenCalled();
-});
+    expect(vendorSpy).toHaveBeenCalled();
+  });
 
 
   it('returns full saved order object with _id', async () => {
     const result = await service.createOrder('org123', new Date(), '5PM', [
       { vendorId: 'v1', serviceName: 'Catering', price: 800 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toHaveProperty('_id', 'mock-order');
   });
 });
@@ -476,13 +476,13 @@ describe('Order Creation Validations', () => {
   });
 
   it('creates order with correct organizerId', async () => {
-    const result = await service.createOrder('orgX', new Date(), '10AM', []);
+    const result = await service.createOrder('orgX', new Date(), '10AM', [], "ABC", 6000);
     expect(result.organizerId).toBe('orgX');
   });
 
   it('assigns eventDate and eventTime correctly', async () => {
     const now = new Date();
-    const result = await service.createOrder('orgX', now, '11AM', []);
+    const result = await service.createOrder('orgX', now, '11AM', [], "ABC", 6000);
     expect(result.eventDate).toEqual(now);
     expect(result.eventTime).toBe('11AM');
   });
@@ -490,7 +490,7 @@ describe('Order Creation Validations', () => {
   it('handles negative pricing by treating it as zero', async () => {
     const result = await service.createOrder('orgX', new Date(), '12PM', [
       { vendorId: 'v1', serviceName: 'X', price: -100 },
-    ]);
+    ], "ABC", 6000);
     expect(result.totalAmount).toBe(-100);
   });
 
@@ -498,20 +498,20 @@ describe('Order Creation Validations', () => {
     const result = await service.createOrder('orgX', new Date(), '1PM', [
       { vendorId: 'v1', serviceName: 'Photo', price: 100 },
       { vendorId: 'v1', serviceName: 'Video', price: 150 },
-    ]);
+    ], "ABC", 6000);
     expect(result.vendorOrders.length).toBe(2);
   });
 
   it('returns object with vendorOrders array after creation', async () => {
     const result = await service.createOrder('orgX', new Date(), '2PM', [
       { vendorId: 'v2', serviceName: 'Music', price: 200 },
-    ]);
+    ], "ABC", 6000);
     expect(Array.isArray(result.vendorOrders)).toBe(true);
   });
 
   it('does not throw on empty input', async () => {
     await expect(
-      service.createOrder('orgX', new Date(), '3PM', [])
+      service.createOrder('orgX', new Date(), '3PM', [], "ABC", 6000)
     ).resolves.not.toThrow();
   });
 });
@@ -530,7 +530,7 @@ describe('Vendor Order Mapping Logic', () => {
 
   class MockVendorOrderModel {
     serviceName(serviceName: any) {
-        throw new Error('Method not implemented.');
+      throw new Error('Method not implemented.');
     }
     save = jest.fn().mockResolvedValue({ _id: 'vendor-id' });
     constructor(data: any) {
@@ -544,7 +544,7 @@ describe('Vendor Order Mapping Logic', () => {
 
   it('should create vendor order with correct vendorId and price', async () => {
     const services = [{ vendorId: 'v123', serviceName: 'Sound', price: 500 }];
-    const result = await service.createOrder('org1', new Date(), '7PM', services);
+    const result = await service.createOrder('org1', new Date(), '7PM', services, "ABC", 6000);
     expect(result.vendorOrders).toContain('vendor-id');
   });
 
@@ -553,32 +553,32 @@ describe('Vendor Order Mapping Logic', () => {
       { vendorId: 'v1', serviceName: 'Photography', price: 1000 },
       { vendorId: 'v2', serviceName: 'Catering', price: 1200 },
     ];
-    const result = await service.createOrder('org1', new Date(), '7PM', services);
+    const result = await service.createOrder('org1', new Date(), '7PM', services, "ABC", 6000);
     expect(result.vendorOrders.length).toBe(2);
   });
 
   it('should retain original vendor service names', async () => {
-  const vendorInstance = new MockVendorOrderModel({ serviceName: 'Photography' });
-  const vendorSpy = jest.spyOn(vendorInstance, 'save');
+    const vendorInstance = new MockVendorOrderModel({ serviceName: 'Photography' });
+    const vendorSpy = jest.spyOn(vendorInstance, 'save');
 
-  const orderInstance = new MockOrderModel({});
-  (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
-  (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
+    const orderInstance = new MockOrderModel({});
+    (service as any).orderModel = jest.fn().mockImplementation(() => orderInstance);
+    (service as any).vendorOrderModel = jest.fn().mockImplementation(() => vendorInstance);
 
-  await service.createOrder('org1', new Date(), '6PM', [
-    { vendorId: 'v1', serviceName: 'Photography', price: 500 },
-  ]);
+    await service.createOrder('org1', new Date(), '6PM', [
+      { vendorId: 'v1', serviceName: 'Photography', price: 500 },
+    ], "ABC", 6000);
 
-  expect(vendorSpy).toHaveBeenCalled();
-  expect(vendorInstance.serviceName).toBe('Photography');
-});
+    expect(vendorSpy).toHaveBeenCalled();
+    expect(vendorInstance.serviceName).toBe('Photography');
+  });
 
   it('should not mutate original services array', async () => {
     const services = [
       { vendorId: 'v1', serviceName: 'DJ', price: 300 },
     ];
     const copy = [...services];
-    await service.createOrder('org1', new Date(), '8PM', services);
+    await service.createOrder('org1', new Date(), '8PM', services, "ABC", 6000);
     expect(services).toEqual(copy); // original should remain unchanged
   });
 
@@ -587,7 +587,7 @@ describe('Vendor Order Mapping Logic', () => {
       { vendorId: 'v1', serviceName: 'Lighting', price: 700 },
     ];
     const spy = jest.spyOn(Promise, 'all');
-    await service.createOrder('org1', new Date(), '10PM', services);
+    await service.createOrder('org1', new Date(), '10PM', services, "ABC", 6000);
     expect(spy).toHaveBeenCalled();
   });
 
@@ -595,7 +595,7 @@ describe('Vendor Order Mapping Logic', () => {
     const incompleteServices = [
       { serviceName: 'Sound', price: 500 } as any, // missing vendorId
     ];
-    const result = await service.createOrder('org1', new Date(), '11PM', incompleteServices);
+    const result = await service.createOrder('org1', new Date(), '11PM', incompleteServices, "ABC", 6000);
     expect(result.vendorOrders.length).toBe(1); // still mocks save with vendor-id
   });
 });
@@ -636,7 +636,7 @@ describe('Snapshot Testing - OrderService Responses', () => {
   it('matches snapshot for order creation result', async () => {
     const result = await service.createOrder('org1', new Date('2025-05-13'), '6PM', [
       { vendorId: 'v1', serviceName: 'Photography', price: 1000 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 
@@ -644,26 +644,26 @@ describe('Snapshot Testing - OrderService Responses', () => {
     const result = await service.createOrder('org2', new Date('2025-05-14'), '8PM', [
       { vendorId: 'v1', serviceName: 'DJ', price: 500 },
       { vendorId: 'v2', serviceName: 'Lighting', price: 700 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 
   it('matches snapshot for zero-price service', async () => {
     const result = await service.createOrder('org3', new Date('2025-05-15'), '5PM', [
       { vendorId: 'v3', serviceName: 'Free Demo', price: 0 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 
   it('matches snapshot for empty service list', async () => {
-    const result = await service.createOrder('org4', new Date('2025-05-16'), '4PM', []);
+    const result = await service.createOrder('org4', new Date('2025-05-16'), '4PM', [], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 
   it('matches snapshot for discount calculation with large total', async () => {
     const result = await service.createOrder('org5', new Date('2025-05-17'), '7PM', [
       { vendorId: 'v1', serviceName: 'Catering', price: 5000 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 
@@ -672,7 +672,7 @@ describe('Snapshot Testing - OrderService Responses', () => {
       { vendorId: 'v1', serviceName: 'Decor', price: 1000 },
       { vendorId: 'v2', serviceName: 'MC', price: 1500 },
       { vendorId: 'v3', serviceName: 'Photography', price: 0 },
-    ]);
+    ], "ABC", 6000);
     expect(result).toMatchSnapshot();
   });
 });
