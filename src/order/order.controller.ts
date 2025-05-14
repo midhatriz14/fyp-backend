@@ -57,12 +57,13 @@ export class OrderController {
     // Get all orders with status filtering and userId
     @Get()
     async getOrders(
+        @Query('type') type: string,
         @Query('userId') userId: string,  // Add userId parameter
         @Query('status') status?: string,
         @Query('limit') limit = 10,
         @Query('skip') skip = 0,
     ) {
-        return this.orderService.getOrders(userId, status, limit, skip);  // Pass userId to service
+        return this.orderService.getOrders(type, userId, status, limit, skip);  // Pass userId to service
     }
 
 

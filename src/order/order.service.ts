@@ -64,12 +64,24 @@ export class OrderService {
     }
 
 
-    // Get orders with status filtering, limit, skip for pagination, and userId
-    async getOrders(userId: string, status?: string, limit = 10, skip = 0): Promise<Order[]> {
+    // Get orders based on type (Organizer or Vendor)
+    async getOrders(
+        type: string,
+        userId: string,
+        status?: string,
+        limit = 10,
+        skip = 0,
+    ): Promise<Order[]> {
         const query: any = {
-            ...status && { status },  // Optional status filter
-            userId,  // Add userId filter
+            ...(status && { status }),  // Optional status filter
         };
+
+        // Check type and modify query accordingly
+        if (type === 'Organizer') {
+            query.organizerId = userId;  // Filter orders by organizerId
+        } else if (type === 'Vendor') {
+            query.vendorOrders = { $elemMatch: { vendorId: userId } };  // Filter by vendorId in vendorOrders array
+        }
 
         return this.orderModel
             .find(query)
@@ -85,6 +97,7 @@ export class OrderService {
             })
             .exec();
     }
+
 
 
 
