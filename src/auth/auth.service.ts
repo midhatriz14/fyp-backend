@@ -123,7 +123,13 @@ export class AuthService {
   }
 
   async updateUser(updateDto: UpdateUserProfileDto): Promise<User> {
-    const updatedUser = await this.userModel.findByIdAndUpdate(updateDto.userId, updateDto, { new: true });
+    console.log(updateDto);
+    const updatedUser = await this.userModel.findByIdAndUpdate(updateDto.userId, {
+      name: updateDto.name,
+      email: updateDto.email,
+      address: updateDto.address,
+      phone_number: updateDto.phoneNumber
+    }, { new: true });
     if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
