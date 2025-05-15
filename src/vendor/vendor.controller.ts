@@ -73,7 +73,9 @@ export class VendorController {
 
     @Post('ai-package')
     async getSmartPackage(@Body() smartPackageDto: SmartPackageInput,) {
-        return this.vendorService.generateSmartPackage(smartPackageDto);
+        smartPackageDto.guests = parseInt(smartPackageDto.guests.toString());
+        smartPackageDto.budget = parseInt(smartPackageDto.budget.toString());
+        return this.vendorService.generateSmartPackage({ ...smartPackageDto });
     }
 
     @Post('image')
