@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles, Patch } from '@nestjs/common';
 import { SmartPackageInput, VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -11,6 +11,7 @@ import { diskStorage } from 'multer';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { UpdatePackageDto } from './dto/update-package.dto';
 
 @Controller('vendor')
 export class VendorController {
@@ -95,5 +96,13 @@ export class VendorController {
             message: 'Images uploaded successfully',
             urls: urls,
         };
+    }
+
+    @Patch('package/:id')
+    async updatePackage(
+        @Param('id') id: string,
+        @Body() updatePackageDto: UpdatePackageDto,
+    ) {
+        return this.vendorService.updatePackage(id, updatePackageDto);
     }
 }
