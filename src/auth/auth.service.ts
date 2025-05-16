@@ -23,7 +23,7 @@ export class AuthService {
     const { email, password, role, buisnessCategories } = registerDto;
     this.logger.log(registerDto, "Register");
 
-    const category = await this.categoryModel.findById(buisnessCategories);
+    const category = await this.categoryModel.findById(buisnessCategories || new Types.ObjectId("682729b2b7d619074bb00135"));
     console.log(category);
     if (!category && role !== "Organizer") {
       throw new NotFoundException('Category doesnt exists')
