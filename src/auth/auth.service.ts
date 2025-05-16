@@ -42,15 +42,20 @@ export class AuthService {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user
-    const user = await this.userModel.create({
+    const userPayload: any = {
       ...registerDto,
-      buisnessCategory: category?._id,
-      role: role,
+      role,
       password: hashedPassword,
       phone_number: registerDto.mobileNumber,
-      address: registerDto.address
-    });
+      address: registerDto.address,
+    };
+
+    if (role !== 'Organizer') {
+      userPayload.buisnessCategory = category?._id;
+    }
+
+    const user = await this.userModel.create(userPayload);
+
 
     // Generate JWT token
     const token = this.jwtService.sign({ id: user._id });
