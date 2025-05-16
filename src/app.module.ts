@@ -10,6 +10,7 @@ import { OrderModule } from './order/order.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EcardModule } from './e-card/e-card.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 
 @Module({
@@ -22,6 +23,7 @@ import { EcardModule } from './e-card/e-card.module';
     MessagesModule,
     ChatModule,
     OrderModule,
+    ReviewsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
