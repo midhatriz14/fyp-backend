@@ -10,11 +10,12 @@ import { CreatePackagesDto } from './dto/create-package.dto';
 import { diskStorage } from 'multer';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 @Controller('vendor')
 export class VendorController {
     private readonly logger = new Logger("fyp")
-    constructor(private vendorService: VendorService) { }
+    constructor(private vendorService: VendorService, private fileUploadService: FileUploadService) { }
 
     @Get('getVendorsByCategoryId')
     getVendorsByCategoryId(@Request() req: any, @Query('categoryId') categoryId: string) {
@@ -79,46 +80,20 @@ export class VendorController {
     }
 
     @Post('image')
-    @UseInterceptors(
-        FilesInterceptor('files', 30, { // 'files' is the field name; 30 is the max number of files
-            storage: diskStorage({
-                destination: './public/images', // Destination folder
-                filename: (req: any, file: any, callback: any) => {
-                    // Generate a unique filename
-                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                    const ext = extname(file.originalname);
-                    callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-                },
-            }),
-            fileFilter: (req, file, callback) => {
-                // Accept only image files
-                if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-                    return callback(
-                        new HttpException('Only image files are allowed!', HttpStatus.BAD_REQUEST),
-                        false,
-                    );
-                }
-                callback(null, true);
-            },
-            limits: {
-                fileSize: 5 * 1024 * 1024, // 5MB file size limit per file
-            },
-        }),
-    )
-    async uploadImages(@Query('userId') userId: string, @UploadedFiles() files: any[]) {
+    @UseInterceptors(FilesInterceptor('files', 10)) // accepts up to 10 files
+    async uploadImages(@Query('userId') userId: string, @UploadedFiles() files: Express.Multer.File[]) {
         if (!files || files.length === 0) {
-            throw new HttpException('Files not provided', HttpStatus.BAD_REQUEST);
+            throw new HttpException('No files provided', HttpStatus.BAD_REQUEST);
         }
 
-        // Construct URLs for each uploaded file
-        const fileUrls = files.map(file => `/public/images/${file.filename}`);
+        const urls = await this.fileUploadService.uploadMultipleFiles(files);
 
         // Optionally, you can associate these URLs with the user in your service
-        await this.vendorService.associateImagesWithUser(userId, fileUrls);
+        await this.vendorService.associateImagesWithUser(userId, urls);
 
         return {
             message: 'Images uploaded successfully',
-            urls: fileUrls,
+            urls: urls,
         };
     }
 }

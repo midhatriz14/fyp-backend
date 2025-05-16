@@ -54,4 +54,27 @@ export class FileUploadService {
             console.log(e);
         }
     }
+
+    async uploadMultipleFiles(files: Express.Multer.File[]) {
+        const uploadResults = [];
+
+        for (const file of files) {
+            const { originalname, buffer, mimetype } = file;
+
+            const response = await this.s3_upload(
+                buffer,
+                this.AWS_S3_BUCKET,
+                originalname,
+                mimetype,
+            );
+
+            if (response?.Location) {
+                uploadResults.push(response.Location); // Public URL
+            } else {
+                throw new Error(`Upload failed for ${originalname}`);
+            }
+        }
+
+        return uploadResults;
+    }
 }

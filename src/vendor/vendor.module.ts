@@ -4,6 +4,7 @@ import { VendorController } from './vendor.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './../auth/schemas/user.schema';
 import { Category, CategorySchema } from 'src/auth/schemas/category.schema';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 @Module({
     imports: [
@@ -13,6 +14,6 @@ import { Category, CategorySchema } from 'src/auth/schemas/category.schema';
         ]),
     ],
     controllers: [VendorController],
-    providers: [VendorService],
+    providers: [VendorService, FileUploadService],
 })
 export class VendorModule { }
