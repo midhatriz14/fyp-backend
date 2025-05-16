@@ -266,7 +266,7 @@ export class User extends Document {
   providerId?: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category' })
-  buisnessCategory: any;
+  buisnessCategory?: any;
 
   @Prop({ type: ContactDetailsSchema })
   contactDetails?: ContactDetails;
