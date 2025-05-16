@@ -10,6 +10,7 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { Category } from 'src/auth/schemas/category.schema';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { UpdatePackageDto } from './dto/update-package.dto';
 
 interface VendorPackage {
     vendorId: string;
@@ -26,7 +27,6 @@ export interface SmartPackageInput {
     services: string[];  // requested services, e.g. ['catering', 'decoration', 'photography']
     budget: number
 }
-
 
 @Injectable()
 export class VendorService {
@@ -216,128 +216,6 @@ export class VendorService {
         await user.save();
     }
 
-    // interface VendorPackage {
-    //     vendorId: string;
-    //     packageName: string;
-    //     price: number;
-    //     services: string; // services as string, ideally convert to array for better matching
-    //     maximumCapacity?: number;
-    //   }
-
-    //   interface SmartPackageInput {
-    //     eventName: string;
-    //     eventDate: Date;
-    //     guests: number;
-    //     services: string[];  // requested services
-    //   }
-
-    // async generateSmartPackage(input: SmartPackageInput): Promise<any> {
-    //     const chosenPackages: any[] = [];
-
-    //     for (const requestedService of input.services) {
-    //         const bestPackage = await this.findBestVendorForService(requestedService, input.guests);
-    //         if (bestPackage) {
-    //             chosenPackages.push(bestPackage);
-    //         }
-    //     }
-
-    //     const totalCost = chosenPackages.reduce((sum, pkg) => sum + pkg.price, 0);
-
-    //     return {
-    //         eventName: input.eventName,
-    //         eventDate: input.eventDate,
-    //         guests: input.guests,
-    //         packages: chosenPackages,
-    //         totalCost,
-    //     };
-    // }
-    // async findBestVendorForService(service: string, guests: number) {
-    //     // Normalize service string
-    //     const serviceLower = service.toLowerCase();
-
-    //     // Find category by service name (case-insensitive exact match)
-    //     const categoryObj = await this.categoryModel.findOne({
-    //         name: { $regex: new RegExp(`^${service}$`, 'i') }
-    //     });
-
-    //     if (!categoryObj) {
-    //         throw new Error(`Category not found for service: ${service}`);
-    //     }
-
-    //     const categoryId = categoryObj._id;
-
-    //     // Aggregation pipeline: get vendors with matching category and packages
-    //     const pipeline = [
-    //         {
-    //             $match: {
-    //                 role: 'Vendor',
-    //                 packages: { $exists: true, $not: { $size: 0 } },
-    //                 buisnessCategory: categoryId,
-    //             }
-    //         },
-    //         {
-    //             $addFields: {
-    //                 BusinessDetails: {
-    //                     $cond: [
-    //                         { $ifNull: ['$salonBusinessDetails', false] }, '$salonBusinessDetails',
-    //                         {
-    //                             $cond: [
-    //                                 { $ifNull: ['$venueBusinessDetails', false] }, '$venueBusinessDetails',
-    //                                 {
-    //                                     $cond: [
-    //                                         { $ifNull: ['$cateringBusinessDetails', false] }, '$cateringBusinessDetails',
-    //                                         '$photographerBusinessDetails'
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                         }
-    //                     ]
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             $project: {
-    //                 salonBusinessDetails: 0,
-    //                 venueBusinessDetails: 0,
-    //                 cateringBusinessDetails: 0,
-    //                 photographerBusinessDetails: 0
-    //             }
-    //         }
-    //     ];
-
-    //     // Execute aggregation
-    //     const vendors = await this.userModel.aggregate(pipeline).exec();
-
-    //     // Filter vendors by guest capacity
-    //     const filteredVendors = vendors.filter(v => {
-    //         const maxCapacity = v.BusinessDetails?.maximumPeopleCapacity ?? Infinity;
-    //         // return guests <= maxCapacity;
-    //         return true;
-    //     });
-
-    //     // Flatten all packages from filtered vendors (no filtering by services inside packages)
-    //     const servicePackages = filteredVendors.flatMap(vendor =>
-    //         vendor.packages.map((pkg: any) => ({
-    //             vendorId: vendor._id.toString(),
-    //             vendorName: vendor.name,
-    //             packageName: pkg.packageName,
-    //             price: pkg.price,
-    //             services: pkg.services,
-    //             maximumCapacity: vendor.BusinessDetails?.maximumPeopleCapacity ?? Infinity,
-    //         }))
-    //     );
-
-    //     // if (servicePackages.length === 0) {
-    //     //     throw new Error(`No vendors found for service category: ${categoryObj.name}`);
-    //     // }
-    //     if (servicePackages.length !== 0) {
-    //         return servicePackages.reduce((prev, curr) => (prev.price < curr.price ? prev : curr));
-    //     }
-    //     // Pick the cheapest package overall
-
-    // }
-
-    // 1. Get all packages for a service (vendors matching the service category)
     async findAllVendorPackagesForService(service: string, guests: number) {
         // Find category by service name (case-insensitive exact match)
         const categoryObj = await this.categoryModel.findOne({
@@ -412,7 +290,6 @@ export class VendorService {
         return packages;
     }
 
-    // 2. Generate smart package with budget-aware backtracking selection
     async generateSmartPackage(input: SmartPackageInput) {
         const services = input.services;
         const budget = input.budget;
@@ -488,7 +365,22 @@ export class VendorService {
         };
     }
 
+    async updatePackage(packageId: string, updateDto: UpdatePackageDto) {
+        const user = await this.userModel.findOne({ 'packages._id': packageId });
 
+        if (!user) throw new NotFoundException('Package not found');
 
+        const pkgIndex = user.packages.findIndex((pkg: any) => pkg._id.toString() === packageId);
+        if (pkgIndex === -1) throw new NotFoundException('Package not found');
 
+        const pkg = user.packages[pkgIndex];
+        if (!pkg) throw new NotFoundException('Package not found inside user');
+
+        if (updateDto.packageName) pkg.packageName = updateDto.packageName;
+        if (updateDto.price !== undefined) pkg.price = updateDto.price;
+        if (updateDto.services) pkg.services = updateDto.services;
+
+        await user.save();
+        return pkg; // return the updated package
+    }
 }
