@@ -19,7 +19,7 @@ export class ReviewsService {
 
     async getVendorReviews(vendorId: string): Promise<Review[]> {
         return this.reviewModel
-            .find({ vendorId })
+            .find({ vendorId: new Types.ObjectId(vendorId) })
             .populate('userId', 'name')
             .sort({ createdAt: -1 });
     }
