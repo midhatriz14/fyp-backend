@@ -25,7 +25,7 @@ export class AuthService {
 
     const category = await this.categoryModel.findById(buisnessCategories);
     console.log(category);
-    if (!category) {
+    if (!category && role !== "Organizer") {
       throw new NotFoundException('Category doesnt exists')
     }
 
@@ -45,7 +45,7 @@ export class AuthService {
     // Create the user
     const user = await this.userModel.create({
       ...registerDto,
-      buisnessCategory: category._id,
+      buisnessCategory: category?._id,
       role: role,
       password: hashedPassword,
       phone_number: registerDto.mobileNumber,
