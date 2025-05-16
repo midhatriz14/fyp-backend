@@ -206,4 +206,81 @@ export class OrderService {
     async confirmOrderCompletion(orderId: string) {
         return this.orderModel.findByIdAndUpdate(orderId, { status: 'completed' }, { new: true });
     }
+
+    async getOrderStatsForVendor(vendorId: string) {
+        const now = new Date();
+        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1); // start of 6 months ago
+
+        // Step 1: Fetch real data
+        const rawStats = await this.orderModel.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: sixMonthsAgo },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'vendororders', // <- make sure this matches your MongoDB collection name (plural, lowercase!)
+                    localField: 'vendorOrders',
+                    foreignField: '_id',
+                    as: 'vendorOrderDetails',
+                },
+            },
+            {
+                $match: {
+                    'vendorOrderDetails.vendorId': new Types.ObjectId(vendorId),
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$createdAt' },
+                        month: { $month: '$createdAt' },
+                    },
+                    totalAmount: { $sum: '$finalAmount' },
+                    orderCount: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { '_id.year': 1, '_id.month': 1 },
+            },
+            {
+                $project: {
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    totalAmount: 1,
+                    orderCount: 1,
+                    _id: 0,
+                },
+            },
+        ]);
+
+
+        // Step 2: Fill in missing months
+        const result = [];
+        const rawMap = new Map(
+            rawStats.map(stat => [`${stat.year}-${stat.month}`, stat])
+        );
+
+        for (let i = 0; i < 6; i++) {
+            const date = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+
+            const key = `${year}-${month}`;
+            const stat = rawMap.get(key);
+
+            result.push({
+                year,
+                month,
+                totalAmount: stat?.totalAmount || 0,
+                orderCount: stat?.orderCount || 0,
+            });
+        }
+
+        // ✅ RETURN THE RESULT
+        return result;
+    }
+
+
 }

@@ -78,6 +78,11 @@ export class OrderController {
         return this.orderService.getOrderStats(type, userId);
     }
 
+    @Get('stats/monthly')
+    async getMonthlyOrderStats(@Query('vendorId') vendorId: string) {
+        return this.orderService.getOrderStatsForVendor(vendorId);
+    }
+
     // Delete an order
     @Delete(':id')
     async deleteOrder(@Param('id') orderId: string) {
