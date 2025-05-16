@@ -29,10 +29,6 @@ export class AuthService {
       throw new NotFoundException('Category doesnt exists')
     }
 
-    // Ensure businessCategories contains valid ObjectIds
-    const businessCategory = new Types.ObjectId(buisnessCategories);
-    console.log("businessCategory", businessCategory)
-
     // Check if the user already exists
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
