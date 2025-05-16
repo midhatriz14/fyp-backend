@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Order } from 'src/auth/schemas/order.schema';
 import { VendorOrder } from 'src/auth/schemas/vendor-order.schema';
+import { UpdateOrderStatusDto } from './dto/update-order-status-dto';
 
 @Injectable()
 export class OrderService {
@@ -161,6 +162,20 @@ export class OrderService {
 
         order.status = 'completed';
         return order.save();
+    }
+
+    async updateStatus(orderId: string, dto: UpdateOrderStatusDto) {
+        const updated = await this.orderModel.findByIdAndUpdate(
+            orderId,
+            { status: dto.status },
+            { new: true },
+        );
+
+        if (!updated) {
+            throw new NotFoundException('Order not found');
+        }
+
+        return updated;
     }
 
     // Update vendor order status (accepted/rejected)

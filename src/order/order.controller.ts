@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Patch, Param, Get, Delete, Query } from "@nestjs/common";
 import { OrderService } from "./order.service";
+import { UpdateOrderStatusDto } from "./dto/update-order-status-dto";
 
 @Controller('orders')
 export class OrderController {
@@ -52,6 +53,14 @@ export class OrderController {
     @Patch('complete-order/:id')
     async completeOrder(@Param('id') orderId: string) {
         return this.orderService.confirmOrderCompletion(orderId);
+    }
+
+    @Patch(':id/status')
+    updateOrderStatus(
+        @Param('id') id: string,
+        @Body() dto: UpdateOrderStatusDto,
+    ) {
+        return this.orderService.updateStatus(id, dto);
     }
 
     // Get all orders with status filtering and userId
