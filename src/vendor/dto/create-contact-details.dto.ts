@@ -1,6 +1,6 @@
 export class CreateContactDetailsDto {
     brandName: string;
-    brandLogo: string;
+    brandLogo?: string;
     contactNumber: string;
     contactNumberSecondary?: string;
     instagramLink: string;
