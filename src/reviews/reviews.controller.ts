@@ -29,4 +29,9 @@ export class ReviewsController {
     async getReviews(@Query('vendorId') vendorId: string) {
         return this.reviewsService.getVendorReviews(vendorId);
     }
+
+    @Get('top-vendors')
+    async getTopVendors() {
+        return this.reviewsService.getTopVendorsByRating();
+    }
 }
