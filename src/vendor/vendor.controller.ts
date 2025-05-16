@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles, Patch, Delete } from '@nestjs/common';
 import { SmartPackageInput, VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -105,4 +105,10 @@ export class VendorController {
     ) {
         return this.vendorService.updatePackage(id, updatePackageDto);
     }
+
+    @Delete(':packageId')
+    async delete(@Param('packageId') packageId: string) {
+        return await this.vendorService.deletePackage(packageId);
+    }
+
 }

@@ -366,21 +366,35 @@ export class VendorService {
     }
 
     async updatePackage(packageId: string, updateDto: UpdatePackageDto) {
-        const user = await this.userModel.findOne({ 'packages._id': packageId });
+        const updatePayload: any = {};
+        if (updateDto.packageName !== undefined) updatePayload['packages.$.packageName'] = updateDto.packageName;
+        if (updateDto.price !== undefined) updatePayload['packages.$.price'] = updateDto.price;
+        if (updateDto.services !== undefined) updatePayload['packages.$.services'] = updateDto.services;
 
-        if (!user) throw new NotFoundException('Package not found');
+        const result = await this.userModel.updateOne(
+            { 'packages._id': packageId },
+            { $set: updatePayload }
+        );
 
-        const pkgIndex = user.packages.findIndex((pkg: any) => pkg._id.toString() === packageId);
-        if (pkgIndex === -1) throw new NotFoundException('Package not found');
+        if (result.modifiedCount === 0) {
+            throw new NotFoundException('Package not updated');
+        }
 
-        const pkg = user.packages[pkgIndex];
-        if (!pkg) throw new NotFoundException('Package not found inside user');
-
-        if (updateDto.packageName) pkg.packageName = updateDto.packageName;
-        if (updateDto.price !== undefined) pkg.price = updateDto.price;
-        if (updateDto.services) pkg.services = updateDto.services;
-
-        await user.save();
-        return pkg; // return the updated package
+        const updatedUser = await this.userModel.findOne({ 'packages._id': packageId });
+        return updatedUser?.packages.find((pkg: any) => pkg._id.toString() === packageId);
     }
+
+    async deletePackage(packageId: string) {
+        const result = await this.userModel.updateOne(
+            { 'packages._id': packageId },
+            { $pull: { packages: { _id: packageId } } }
+        );
+
+        if (result.modifiedCount === 0) {
+            throw new NotFoundException('Package not found');
+        }
+
+        return { message: 'Package deleted successfully' };
+    }
+
 }
