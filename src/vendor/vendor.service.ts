@@ -9,6 +9,7 @@ import { CreateVenueBusinessDetailsDto } from './dto/create-venue-business-detai
 import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business-details.dto';
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { Category } from 'src/auth/schemas/category.schema';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 interface VendorPackage {
     vendorId: string;
@@ -32,6 +33,7 @@ export class VendorService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Category.name) private categoryModel: Model<Category>,
+        private fileUploadService: FileUploadService
     ) { }
 
     async getAllVendorsByCategoryId(categoryId: string): Promise<User[]> {
@@ -103,11 +105,13 @@ export class VendorService {
     async createContactDetails(
         userId: string,
         createContactDetailsDto: CreateContactDetailsDto,
+        file: Express.Multer.File
     ): Promise<User> {
         const user = await this.userModel.findById(userId).exec();
+        const fileUrl = await this.fileUploadService.uploadFile(file);
         if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
-        user.contactDetails = { ...createContactDetailsDto }
+        user.contactDetails = { ...createContactDetailsDto, brandLogo: fileUrl?.Location || "" }
         return await user.save();
     }
 
@@ -179,7 +183,7 @@ export class VendorService {
         return user.packages;
     }
 
-    async getVendor(userId: string) {
+    async getVendor(userId: string): Promise<any> {
         const user = await this.userModel.findById(userId).lean();
         const userObjToReturn = {
             ...user,

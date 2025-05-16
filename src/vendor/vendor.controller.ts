@@ -8,7 +8,7 @@ import { CreateCateringBusinessDetailsDto } from './dto/create-catering-business
 import { User } from 'src/auth/schemas/user.schema';
 import { CreatePackagesDto } from './dto/create-package.dto';
 import { diskStorage } from 'multer';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 
@@ -23,11 +23,11 @@ export class VendorController {
     }
 
     @Post('contactDetails')
+    @UseInterceptors(FileInterceptor('file'))
     async createContactDetails(
         @Query("userId") userId: string,
-        @Body() createContactDetailsDto: CreateContactDetailsDto): Promise<User> {
-        this.logger.log(userId, "contactDetails");
-        return await this.vendorService.createContactDetails(userId, createContactDetailsDto);
+        @Body() createContactDetailsDto: CreateContactDetailsDto, @UploadedFile() file: Express.Multer.File): Promise<User> {
+        return await this.vendorService.createContactDetails(userId, createContactDetailsDto, file);
     }
 
     @Post('buisnessDetails')
