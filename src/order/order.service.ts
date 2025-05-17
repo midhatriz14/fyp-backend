@@ -45,19 +45,23 @@ export class OrderService {
         const savedOrder = await order.save();
 
         // Create vendor orders and push the vendorOrder _id to the order's vendorOrders field
-        const vendorOrderIds: Types.ObjectId[] = [];
-        for (const service of services) {
-            const vendorOrder = new this.vendorOrderModel({
-                orderId: savedOrder._id,
-                vendorId: new Types.ObjectId(service.vendorId),
-                serviceName: service.serviceName,
-                price: service.price,
-                status: 'pending', // Initial vendor order status
-            });
+        try {
+            const vendorOrderIds: Types.ObjectId[] = [];
+            for (const service of services) {
+                const vendorOrder = new this.vendorOrderModel({
+                    orderId: savedOrder._id,
+                    vendorId: new Types.ObjectId(service.vendorId),
+                    serviceName: service.serviceName,
+                    price: service.price,
+                    status: 'pending', // Initial vendor order status
+                });
 
-            // Save each vendor order and push its _id into the vendorOrders array
-            const savedVendorOrder = await vendorOrder.save();
-            vendorOrderIds.push(savedVendorOrder._id);
+                // Save each vendor order and push its _id into the vendorOrders array
+                const savedVendorOrder = await vendorOrder.save();
+                vendorOrderIds.push(savedVendorOrder._id);
+            }
+        } catch (error) {
+            console.log(error);
         }
 
         // Update the order document with the vendorOrder IDs
