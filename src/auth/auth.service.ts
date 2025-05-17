@@ -136,7 +136,7 @@ export class AuthService {
   async updatePushToken(dto: UpdatePushTokenDto) {
     const user = await this.userModel.findById(dto.userId);
     if (!user) throw new NotFoundException('User not found');
-
+    console.log(dto);
     user.pushToken = dto.token;
     return await user.save();
   }
