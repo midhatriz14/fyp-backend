@@ -9,6 +9,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Category } from './schemas/category.schema';
 import { UpdateUserProfileDto } from './dto/update-profile.dto';
+import { UpdatePushTokenDto } from './dto/update-push-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -130,5 +131,13 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
     return updatedUser;
+  }
+
+  async updatePushToken(dto: UpdatePushTokenDto) {
+    const user = await this.userModel.findById(dto.userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    user.pushToken = dto.token;
+    return await user.save();
   }
 }

@@ -265,6 +265,9 @@ export class User extends Document {
   @Prop()
   providerId?: string;
 
+  @Prop()
+  pushToken?: string;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category' })
   buisnessCategory?: any;
 

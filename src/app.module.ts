@@ -11,6 +11,7 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EcardModule } from './e-card/e-card.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 
 @Module({
@@ -24,6 +25,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     ChatModule,
     OrderModule,
     ReviewsModule,
+    NotificationsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],

@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { UpdateUserProfileDto } from './dto/update-profile.dto';
+import { UpdatePushTokenDto } from './dto/update-push-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,6 +29,11 @@ export class AuthController {
   @Patch('update')
   async updateProfile(@Body() updateDto: UpdateUserProfileDto) {
     return this.authService.updateUser(updateDto);
+  }
+
+  @Post('push-token')
+  async updatePushToken(@Body() body: UpdatePushTokenDto) {
+    return this.authService.updatePushToken(body);
   }
 
   // @Get('google')
