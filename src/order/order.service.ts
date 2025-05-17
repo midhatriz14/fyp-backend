@@ -46,28 +46,32 @@ export class OrderService {
 
         // Create vendor orders and push the vendorOrder _id to the order's vendorOrders field
         const vendorOrderIds: Types.ObjectId[] = [];
-        try {
-            for (const service of services) {
-                const vendorOrder = new this.vendorOrderModel({
-                    orderId: savedOrder._id,
-                    vendorId: new Types.ObjectId(service.vendorId),
-                    serviceName: service.serviceName,
-                    price: service.price,
-                    status: 'pending', // Initial vendor order status
-                });
-            }
-        } catch (error) {
-            console.log(error);
+
+        for (const service of services) {
+            const vendorOrder = new this.vendorOrderModel({
+                orderId: savedOrder._id,
+                vendorId: new Types.ObjectId(service.vendorId),
+                serviceName: service.serviceName,
+                price: service.price,
+                status: 'pending', // Initial vendor order status
+            });
+
+            // Save each vendor order and push its _id into the vendorOrders array
+            const savedVendorOrder = await vendorOrder.save();
+            vendorOrderIds.push(savedVendorOrder._id);
         }
-        // Save each vendor order and push its _id into the vendorOrders array
-        const savedVendorOrder = await vendorOrder.save();
-        vendorOrderIds.push(savedVendorOrder._id);
+
+
         // Update the order document with the vendorOrder IDs
         savedOrder.vendorOrders = vendorOrderIds;
         await savedOrder.save();
-        for (let index = 0; index < services.length; index++) {
-            await this.sendPushNotification("Order", "A new order has been placed", services[index].vendorId);
-            console.log("Notification sent on create order", services[index].vendorId);
+        try {
+            for (let index = 0; index < services.length; index++) {
+                await this.sendPushNotification("Order", "A new order has been placed", services[index].vendorId);
+                console.log("Notification sent on create order", services[index].vendorId);
+            }
+        } catch (error) {
+            console.log(error);
         }
         return savedOrder;
     }
