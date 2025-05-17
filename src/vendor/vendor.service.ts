@@ -137,6 +137,8 @@ export class VendorService {
             user.photographerBusinessDetails = { ...dto } as PhotographerBusinessDetails;
         } else if (category.name === "Makeup") {
             user.salonBusinessDetails = { ...dto } as unknown as SalonBusinessDetails;
+        } else if (category.name === "Mehndi") {
+            user.salonBusinessDetails = { ...dto } as unknown as SalonBusinessDetails;
         } else {
             console.log("No Buisness Category", category);
             throw new NotFoundException(`Business Category not found or not defined yet.`);
