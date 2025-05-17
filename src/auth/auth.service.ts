@@ -140,4 +140,18 @@ export class AuthService {
     user.pushToken = dto.token;
     return await user.save();
   }
+
+  async getUserPushToken(userId: string): Promise<string> {
+    const user = await this.userModel.findById(userId).select('pushToken');
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    if (!user.pushToken) {
+      throw new NotFoundException(`Push token not found for user ID ${userId}`);
+    }
+
+    return user.pushToken;
+  }
 }

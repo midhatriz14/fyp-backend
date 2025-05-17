@@ -1,13 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import axios from 'axios';
 import { Model, Types } from 'mongoose';
 import { Order } from 'src/auth/schemas/order.schema';
 import { VendorOrder } from 'src/auth/schemas/vendor-order.schema';
 import { UpdateOrderStatusDto } from './dto/update-order-status-dto';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class OrderService {
     constructor(
+        @InjectModel(User.name) private readonly userModel: Model<User>,
         @InjectModel(Order.name) private readonly orderModel: Model<Order>,
         @InjectModel(VendorOrder.name) private readonly vendorOrderModel: Model<VendorOrder>,
     ) { }
@@ -60,7 +63,10 @@ export class OrderService {
         // Update the order document with the vendorOrder IDs
         savedOrder.vendorOrders = vendorOrderIds;
         await savedOrder.save();
-
+        for (let index = 0; index < services.length; index++) {
+            await this.sendPushNotification("Order", "A new order has been placed", services[index].vendorId);
+            console.log("Notification sent on create order", services[index].vendorId);
+        }
         return savedOrder;
     }
 
@@ -297,5 +303,39 @@ export class OrderService {
         return result;
     }
 
+    async getUserPushToken(userId: string): Promise<string> {
+        const user = await this.userModel.findById(userId).select('pushToken');
 
+        if (!user) {
+            throw new NotFoundException(`User with ID ${userId} not found`);
+        }
+
+        if (!user.pushToken) {
+            throw new NotFoundException(`Push token not found for user ID ${userId}`);
+        }
+
+        return user.pushToken;
+    }
+
+    async sendPushNotification(title: string, body: string, userId: string) {
+        const token = await this.getUserPushToken(userId);
+        const message = {
+            to: token,
+            sound: 'default',
+            title,
+            body,
+        };
+
+        try {
+            const response = await axios.post('https://exp.host/--/api/v2/push/send', message, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Expo push error:', error);
+            throw error;
+        }
+    }
 }
