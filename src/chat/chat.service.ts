@@ -104,6 +104,7 @@ export class ChatService {
 
     async sendPushNotification(title: string, body: string, userId: string, type: string) {
         const token = await this.getUserPushToken(userId);
+        console.log("Token", token);
         const message = {
             to: token,
             sound: 'default',
