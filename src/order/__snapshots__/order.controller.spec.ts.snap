@@ -12,6 +12,8 @@ exports[`OrderController Snapshot Tests should match snapshot for completeVendor
 exports[`OrderController Snapshot Tests should match snapshot for placeOrder response 1`] = `
 {
   "_id": "orderSnap123",
+  "eventName": "ABC",
+  "guests": 6000,
   "organizerId": "snapTest",
   "services": [
     {

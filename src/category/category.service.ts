@@ -7,6 +7,10 @@ import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 @Injectable()
 export class CategoryService {
+    createCategory: any;
+    getAllCategories: any;
+    updateCategory: any;
+    deleteCategory: any;
     constructor(
         @InjectModel(Category.name) private categoryModel: Model<Category>,
         private fileUploadService: FileUploadService

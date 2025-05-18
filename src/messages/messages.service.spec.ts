@@ -44,25 +44,25 @@ describe('Unit Testing - MessagesService', () => {
   });
 
   it('should create and save a message', async () => {
-  const dto = {
-    chatId: '123',
-    senderId: 'user1',
-    receiverId: 'user2',
-    message: 'Hello',
-    timestamp: new Date(),
-  };
+    const dto = {
+      chatId: '123',
+      senderId: 'user1',
+      receiverId: 'user2',
+      message: 'Hello',
+      timestamp: new Date(),
+    };
 
-  const saveMock = jest.fn().mockResolvedValue(dto);
+    const saveMock = jest.fn().mockResolvedValue(dto);
 
-  // Directly replace the injected model with a mock constructor
-  (service as any).messageModel = function () {
-    return { ...dto, save: saveMock };
-  };
+    // Directly replace the injected model with a mock constructor
+    (service as any).messageModel = function () {
+      return { ...dto, save: saveMock };
+    };
 
-  const result = await service.create(dto as any);
-  expect(saveMock).toHaveBeenCalled();
-  expect(result).toEqual(dto);
-});
+    const result = await service.create(dto as any);
+    expect(saveMock).toHaveBeenCalled();
+    expect(result).toEqual(dto);
+  });
 
   it('should find messages by chatId', async () => {
     const messages = [
@@ -75,28 +75,28 @@ describe('Unit Testing - MessagesService', () => {
   });
 
   it('should handle create when save returns null', async () => {
-  const dto = { chatId: 'null', senderId: 'x', receiverId: 'y', message: 'Null save', timestamp: new Date() };
-  const saveMock = jest.fn().mockResolvedValue(null);
-  (service as any).messageModel = function () {
-    return { ...dto, save: saveMock };
-  };
-  const result = await service.create(dto as any);
-  expect(result).toBeNull();
-});
+    const dto = { chatId: 'null', senderId: 'x', receiverId: 'y', message: 'Null save', timestamp: new Date() };
+    const saveMock = jest.fn().mockResolvedValue(null);
+    (service as any).messageModel = function () {
+      return { ...dto, save: saveMock };
+    };
+    const result = await service.create(dto as any);
+    expect(result).toBeNull();
+  });
 
-it('should throw if create model throws synchronously', async () => {
-  (service as any).messageModel = function () {
-    throw new Error('Sync Error');
-  };
-  await expect(service.create({} as any)).rejects.toThrow('Sync Error');
-});
+  it('should throw if create model throws synchronously', async () => {
+    (service as any).messageModel = function () {
+      throw new Error('Sync Error');
+    };
+    await expect(service.create({} as any)).rejects.toThrow('Sync Error');
+  });
 
-it('should return an empty array when no results found', async () => {
-  jest.spyOn(model, 'find').mockReturnValue({ sort: () => ({ exec: async () => [] }) } as any);
-  const result = await service.findByChatId('none');
-  expect(Array.isArray(result)).toBe(true);
-  expect(result).toHaveLength(0);
-});
+  it('should return an empty array when no results found', async () => {
+    jest.spyOn(model, 'find').mockReturnValue({ sort: () => ({ exec: async () => [] }) } as any);
+    const result = await service.findByChatId('none');
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(0);
+  });
 
 });
 
@@ -147,32 +147,32 @@ describe('Integration Testing - MessagesService', () => {
   });
 
   it('should handle create and then fetch correctly', async () => {
-  const dto = { chatId: 'chain', senderId: 'a', receiverId: 'b', message: 'Chain test' };
-  jest.spyOn(service, 'create').mockResolvedValue(dto as any);
-  jest.spyOn(service, 'findByChatId').mockResolvedValue([dto] as any);
+    const dto = { chatId: 'chain', senderId: 'a', receiverId: 'b', message: 'Chain test' };
+    jest.spyOn(service, 'create').mockResolvedValue(dto as any);
+    jest.spyOn(service, 'findByChatId').mockResolvedValue([dto] as any);
 
-  const created = await service.create(dto as any);
-  const fetched = await service.findByChatId('chain');
-  expect(created).toEqual(dto);
-  expect(fetched[0]).toEqual(dto);
-});
+    const created = await service.create(dto as any);
+    const fetched = await service.findByChatId('chain');
+    expect(created).toEqual(dto);
+    expect(fetched[0]).toEqual(dto);
+  });
 
-it('should return no messages if chatId has no data', async () => {
-  jest.spyOn(service, 'findByChatId').mockResolvedValue([]);
-  const result = await service.findByChatId('no-data');
-  expect(result).toEqual([]);
-});
+  it('should return no messages if chatId has no data', async () => {
+    jest.spyOn(service, 'findByChatId').mockResolvedValue([]);
+    const result = await service.findByChatId('no-data');
+    expect(result).toEqual([]);
+  });
 
-it('should process multiple create calls correctly', async () => {
-  const dto1 = { chatId: 'multi', senderId: 'x', receiverId: 'y', message: 'First' };
-  const dto2 = { chatId: 'multi', senderId: 'x', receiverId: 'y', message: 'Second' };
-  jest.spyOn(service, 'create').mockResolvedValueOnce(dto1 as any).mockResolvedValueOnce(dto2 as any);
+  it('should process multiple create calls correctly', async () => {
+    const dto1 = { chatId: 'multi', senderId: 'x', receiverId: 'y', message: 'First' };
+    const dto2 = { chatId: 'multi', senderId: 'x', receiverId: 'y', message: 'Second' };
+    jest.spyOn(service, 'create').mockResolvedValueOnce(dto1 as any).mockResolvedValueOnce(dto2 as any);
 
-  const first = await service.create(dto1 as any);
-  const second = await service.create(dto2 as any);
-  expect(first.message).toBe('First');
-  expect(second.message).toBe('Second');
-});
+    const first = await service.create(dto1 as any);
+    const second = await service.create(dto2 as any);
+    expect(first.message).toBe('First');
+    expect(second.message).toBe('Second');
+  });
 
 });
 
@@ -193,14 +193,14 @@ describe('Negative Testing - MessagesService', () => {
   });
 
   it('should throw error if save fails', async () => {
-  const saveMock = jest.fn().mockRejectedValue(new Error('Fail'));
+    const saveMock = jest.fn().mockRejectedValue(new Error('Fail'));
 
-  (service as any).messageModel = function () {
-    return { save: saveMock };
-  };
+    (service as any).messageModel = function () {
+      return { save: saveMock };
+    };
 
-  await expect(service.create({} as any)).rejects.toThrow('Fail');
-});
+    await expect(service.create({} as any)).rejects.toThrow('Fail');
+  });
 
   it('should return null if no messages found', async () => {
     jest.spyOn(model, 'find').mockReturnValue({ sort: () => ({ exec: async () => null }) } as any);
@@ -218,21 +218,21 @@ describe('Negative Testing - MessagesService', () => {
   });
 
   it('should handle undefined input gracefully', async () => {
-  jest.spyOn(model, 'find').mockReturnValue({ sort: () => ({ exec: async () => [] }) } as any);
-  const result = await service.findByChatId(undefined as any);
-  expect(result).toEqual([]);
-});
-
-it('should reject if create receives undefined', async () => {
-  await expect(service.create(undefined as any)).rejects.toThrow();
-});
-
-it('should handle thrown string error in findByChatId', async () => {
-  jest.spyOn(model, 'find').mockImplementation(() => {
-    throw new Error('String error');
+    jest.spyOn(model, 'find').mockReturnValue({ sort: () => ({ exec: async () => [] }) } as any);
+    const result = await service.findByChatId(undefined as any);
+    expect(result).toEqual([]);
   });
-  await expect(service.findByChatId('123')).rejects.toThrow('String error');
-});
+
+  it('should reject if create receives undefined', async () => {
+    await expect(service.create(undefined as any)).rejects.toThrow();
+  });
+
+  it('should handle thrown string error in findByChatId', async () => {
+    jest.spyOn(model, 'find').mockImplementation(() => {
+      throw new Error('String error');
+    });
+    await expect(service.findByChatId('123')).rejects.toThrow('String error');
+  });
 
 
 });
@@ -278,39 +278,39 @@ describe('Schema Validation - MessageSchema', () => {
   });
 
   it('should fail if chatId is missing', async () => {
-  const MessageModel = mongoose.model('Message', MessageSchema);
-  const invalidMsg = new MessageModel({ senderId: 's1', receiverId: 'r1', message: 'Hello' });
-  try {
-    await invalidMsg.validate();
-  } catch (err: any) {
-    expect(err.errors.chatId).toBeDefined();
-  }
-});
+    const MessageModel = mongoose.model('Message', MessageSchema);
+    const invalidMsg = new MessageModel({ senderId: 's1', receiverId: 'r1', message: 'Hello' });
+    try {
+      await invalidMsg.validate();
+    } catch (err: any) {
+      expect(err.errors.chatId).toBeDefined();
+    }
+  });
 
-it('should fail if senderId is not a string', async () => {
-  const MessageModel = mongoose.model('Message', MessageSchema);
-  const invalidMsg = new MessageModel({ chatId: '1', senderId: 123, receiverId: 'r1', message: 'Hi' });
-  try {
-    await invalidMsg.validate();
-  } catch (err: any) {
-    expect(err.errors.senderId).toBeDefined();
-  }
-});
+  it('should fail if senderId is not a string', async () => {
+    const MessageModel = mongoose.model('Message', MessageSchema);
+    const invalidMsg = new MessageModel({ chatId: '1', senderId: 123, receiverId: 'r1', message: 'Hi' });
+    try {
+      await invalidMsg.validate();
+    } catch (err: any) {
+      expect(err.errors.senderId).toBeDefined();
+    }
+  });
 
-it('should fail if receiverId is not a string', async () => {
-  const MessageModel = mongoose.model('Message', MessageSchema);
-  const invalidMsg = new MessageModel({ chatId: '1', senderId: 's1', receiverId: 123, message: 'Hi' });
-  try {
-    await invalidMsg.validate();
-  } catch (err: any) {
-    expect(err.errors.receiverId).toBeDefined();
-  }
-});
+  it('should fail if receiverId is not a string', async () => {
+    const MessageModel = mongoose.model('Message', MessageSchema);
+    const invalidMsg = new MessageModel({ chatId: '1', senderId: 's1', receiverId: 123, message: 'Hi' });
+    try {
+      await invalidMsg.validate();
+    } catch (err: any) {
+      expect(err.errors.receiverId).toBeDefined();
+    }
+  });
 
 });
 
 describe('DTO Validation - CreateMessageDto', () => {
- 
+
   it('should pass for valid input', async () => {
     const dto = plainToClass(CreateMessageDto, {
       chatId: '1',

@@ -6,6 +6,8 @@ import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 @Controller('category')
 export class CategoryController {
+    createCategory: any;
+    getAllCategories: any;
     constructor(private categoryService: CategoryService) { }
 
     @Post()
