@@ -5,11 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User, UserSchema } from './schemas/user.schema';
-import { Vendor, VendorSchema } from './schemas/vendor.schema';
-import { VendorServices, VendorServicesSchema } from './schemas/vendorservices.schema';
 import { Reviews, ReviewsSchema } from './schemas/reviews.schema';
-import { Event, EventSchema } from './schemas/events.schemas';
-import { Bookings, BookingsSchema } from './schemas/bookings.schema';
 import { Category, CategorySchema } from './schemas/category.schema';
 import { Message, MessageSchema } from './schemas/message.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -27,11 +23,7 @@ import { Notification, NotificationSchema } from './schemas/notification.schema'
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: Vendor.name, schema: VendorSchema },
-      { name: VendorServices.name, schema: VendorServicesSchema },
       { name: Reviews.name, schema: ReviewsSchema },
-      { name: Event.name, schema: EventSchema },
-      { name: Bookings.name, schema: BookingsSchema },
       { name: Category.name, schema: CategorySchema },
       { name: Message.name, schema: MessageSchema },
       { name: Review.name, schema: ReviewSchema },
