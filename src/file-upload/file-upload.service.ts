@@ -1,7 +1,8 @@
 // src/common/services/file-upload.service.ts
 import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
-// import { S3 } from '@aws-sdk/client-s3'; // ❌ WRONG – causes the error
+import { v4 as uuidv4 } from 'uuid';
+import { extname } from 'path';
 
 
 @Injectable()
@@ -59,12 +60,15 @@ export class FileUploadService {
         const uploadResults = [];
 
         for (const file of files) {
-            const { originalname, buffer, mimetype } = file;
+            const { buffer, mimetype, originalname } = file;
+
+            // Generate unique filename with original extension
+            const uniqueFileName = `${uuidv4()}${extname(originalname)}`;
 
             const response = await this.s3_upload(
                 buffer,
                 this.AWS_S3_BUCKET,
-                originalname,
+                uniqueFileName,
                 mimetype,
             );
 
