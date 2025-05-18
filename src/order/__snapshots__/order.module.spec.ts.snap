@@ -1,18 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`✅ Snapshot Testing should match snapshot of Order schema structure 1`] = `
-[
-  "organizerId",
-  "vendorOrders",
-  "eventDate",
-  "eventTime",
-  "totalAmount",
-  "discount",
-  "finalAmount",
-  "status",
-]
-`;
-
 exports[`✅ Snapshot Testing should match snapshot of OrderController methods 1`] = `
 [
   "constructor",
