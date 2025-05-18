@@ -10,6 +10,8 @@ import { LoginDto } from './dto/login.dto';
 import { Category } from './schemas/category.schema';
 import { UpdateUserProfileDto } from './dto/update-profile.dto';
 import { UpdatePushTokenDto } from './dto/update-push-token.dto';
+import { SearchVendorsDto } from './dto/search-vendors.dto';
+import { Review } from './schemas/review.schema';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Category.name) private categoryModel: Model<Category>,
+    @InjectModel(Review.name) private reviewModel: Model<Review>,
     private jwtService: JwtService,
   ) { }
 
@@ -142,6 +145,75 @@ export class AuthService {
       ],
     }).exec();
   }
+
+  async searchVendorsByFilters(filters: SearchVendorsDto): Promise<any[]> {
+    const query: any = {
+      role: 'Vendor',
+    };
+
+    // Optional name search
+    if (filters.name) {
+      query['name'] = { $regex: filters.name, $options: 'i' };
+    }
+
+    // Optional category filter
+    if (filters.categoryId) {
+      query['buisnessCategory'] = new Types.ObjectId(filters.categoryId);
+    }
+
+    // Optional city filter (case-insensitive partial match)
+    if (filters.city) {
+      query['city'] = { $regex: filters.city, $options: 'i' };
+    }
+
+    // Optional staff gender filter across business types
+    if (filters.staff) {
+      query['$or'] = [
+        { 'photographerBusinessDetails.staff': filters.staff },
+        { 'salonBusinessDetails.staffGender': filters.staff },
+        { 'cateringBusinessDetails.staff': filters.staff },
+        { 'venueBusinessDetails.staff': filters.staff },
+      ];
+    }
+
+    // Optional cancellation policy filter across applicable business types
+    if (filters.cancellationPolicy) {
+      if (!query['$or']) query['$or'] = [];
+      query['$or'].push(
+        { 'salonBusinessDetails.cancellationPolicy': filters.cancellationPolicy },
+        { 'cateringBusinessDetails.cancellationPolicy': filters.cancellationPolicy },
+        { 'venueBusinessDetails.cancellationPolicy': filters.cancellationPolicy }
+      );
+    }
+
+    // Fetch filtered vendors
+    const users = await this.userModel.find(query).lean();
+
+    // If rating filter is provided, do post-processing with review aggregation
+    if (filters && filters.minRating !== null) {
+      const vendorIds = users.map(user => user._id);
+      const reviews = await this.reviewModel.aggregate([
+        { $match: { vendorId: { $in: vendorIds } } },
+        {
+          $group: {
+            _id: '$vendorId',
+            avgRating: { $avg: '$rating' },
+          },
+        },
+      ]);
+
+      const ratingMap = new Map(reviews.map(r => [r._id.toString(), r.avgRating]));
+
+      // Filter users by rating
+      return users.filter(user => {
+        const avg = ratingMap.get(user._id.toString()) ?? 0;
+        return avg >= filters && filters.minRating ? filters.minRating : 0;
+      });
+    }
+
+    return users;
+  }
+
 
   async updatePushToken(dto: UpdatePushTokenDto) {
     const user = await this.userModel.findById(dto.userId);

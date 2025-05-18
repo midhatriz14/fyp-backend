@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { UpdateUserProfileDto } from './dto/update-profile.dto';
 import { UpdatePushTokenDto } from './dto/update-push-token.dto';
+import { SearchVendorsDto } from './dto/search-vendors.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -40,6 +41,11 @@ export class AuthController {
   async searchUsers(@Query('q') query: string) {
     const users = await this.authService.searchUsers(query);
     return users;
+  }
+
+  @Get('vendor-search')
+  async searchVendors(@Query() filters: SearchVendorsDto) {
+    return this.authService.searchVendorsByFilters(filters);
   }
 
   // @Get('google')
