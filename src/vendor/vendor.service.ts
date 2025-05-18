@@ -102,6 +102,13 @@ export class VendorService {
         return vendors as User[];
     }
 
+    async findVendorById(id: string) {
+        return await this.userModel
+            .findOne({ _id: id, role: 'Vendor' })
+            .populate('buisnessCategory')
+            .exec();
+    }
+
     async createContactDetails(
         userId: string,
         createContactDetailsDto: CreateContactDetailsDto,

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseInterceptors, HttpException, HttpStatus, UploadedFile, UseGuards, Request, Param, Logger, UploadedFiles, Patch, Delete, NotFoundException } from '@nestjs/common';
 import { SmartPackageInput, VendorService } from './vendor.service';
 import { CreateContactDetailsDto } from './dto/create-contact-details.dto';
 import { CreatePhotographerBusinessDetailsDto } from './dto/create-photographer-business-details.dto';
@@ -21,6 +21,15 @@ export class VendorController {
     @Get('getVendorsByCategoryId')
     getVendorsByCategoryId(@Request() req: any, @Query('categoryId') categoryId: string) {
         return this.vendorService.getAllVendorsByCategoryId(categoryId);
+    }
+
+    @Get(':id')
+    async getVendorById(@Param('id') id: string) {
+        const vendor = await this.vendorService.findVendorById(id);
+        if (!vendor || vendor.role.toLowerCase() !== 'vendor') {
+            throw new NotFoundException('Vendor not found or role mismatch');
+        }
+        return vendor;
     }
 
     @Post('contactDetails')
