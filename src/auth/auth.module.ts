@@ -15,6 +15,7 @@ import { Message, MessageSchema } from './schemas/message.schema';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
+import { Review, ReviewSchema } from './schemas/review.schema';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
       { name: Bookings.name, schema: BookingsSchema },
       { name: Category.name, schema: CategorySchema },
       { name: Message.name, schema: MessageSchema },
+      { name: Review.name, schema: ReviewSchema },
     ]),
   ],
   controllers: [AuthController],
