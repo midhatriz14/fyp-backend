@@ -29,7 +29,6 @@ import { NotificationsModule } from './notifications/notifications.module';
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
     }),
-    EcardModule,
   ],
 })
 export class AppModule { }
