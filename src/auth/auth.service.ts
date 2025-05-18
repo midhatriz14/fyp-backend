@@ -147,26 +147,30 @@ export class AuthService {
   }
 
   async searchVendorsByFilters(filters: SearchVendorsDto): Promise<any[]> {
+    console.log("Filters", filters);
+    const hasFilters = Object.values(filters || {}).some(v => v !== undefined && v !== null && v !== '');
+
+    // ✅ Return all vendors if no filters at all
+    if (!hasFilters) {
+      return this.userModel.find({ role: 'Vendor' }).lean();
+    }
+
     const query: any = {
       role: 'Vendor',
     };
 
-    // Optional name search
     if (filters.name) {
       query['name'] = { $regex: filters.name, $options: 'i' };
     }
 
-    // Optional category filter
     if (filters.categoryId) {
       query['buisnessCategory'] = new Types.ObjectId(filters.categoryId);
     }
 
-    // Optional city filter (case-insensitive partial match)
     if (filters.city) {
       query['city'] = { $regex: filters.city, $options: 'i' };
     }
 
-    // Optional staff gender filter across business types
     if (filters.staff) {
       query['$or'] = [
         { 'photographerBusinessDetails.staff': filters.staff },
@@ -176,7 +180,6 @@ export class AuthService {
       ];
     }
 
-    // Optional cancellation policy filter across applicable business types
     if (filters.cancellationPolicy) {
       if (!query['$or']) query['$or'] = [];
       query['$or'].push(
@@ -186,11 +189,10 @@ export class AuthService {
       );
     }
 
-    // Fetch filtered vendors
     const users = await this.userModel.find(query).lean();
 
-    // If rating filter is provided, do post-processing with review aggregation
-    if (filters && filters.minRating !== null) {
+    // ✅ Ratings filtering — only if minRating is a number
+    if (typeof filters.minRating === 'number') {
       const vendorIds = users.map(user => user._id);
       const reviews = await this.reviewModel.aggregate([
         { $match: { vendorId: { $in: vendorIds } } },
@@ -204,15 +206,15 @@ export class AuthService {
 
       const ratingMap = new Map(reviews.map(r => [r._id.toString(), r.avgRating]));
 
-      // Filter users by rating
       return users.filter(user => {
         const avg = ratingMap.get(user._id.toString()) ?? 0;
-        return avg >= filters && filters.minRating ? filters.minRating : 0;
+        return avg >= filters.minRating!;
       });
     }
 
     return users;
   }
+
 
 
   async updatePushToken(dto: UpdatePushTokenDto) {
