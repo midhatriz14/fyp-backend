@@ -150,9 +150,9 @@ export class AuthService {
     console.log("Filters", filters);
     const hasFilters = Object.values(filters || {}).some(v => v !== undefined && v !== null && v !== '');
 
-    // ✅ Return all vendors if no filters at all
     if (!hasFilters) {
-      return this.userModel.find({ role: 'Vendor' }).lean();
+      const allVendors = await this.userModel.find({ role: 'Vendor' }).lean();
+      return allVendors.map(this.attachBusinessDetails);
     }
 
     const query: any = {
@@ -191,7 +191,8 @@ export class AuthService {
 
     const users = await this.userModel.find(query).lean();
 
-    // ✅ Ratings filtering — only if minRating is a number
+    // ✅ Filter by ratings
+    let filteredUsers = users;
     if (typeof filters.minRating === 'number') {
       const vendorIds = users.map(user => user._id);
       const reviews = await this.reviewModel.aggregate([
@@ -206,16 +207,27 @@ export class AuthService {
 
       const ratingMap = new Map(reviews.map(r => [r._id.toString(), r.avgRating]));
 
-      return users.filter(user => {
+      filteredUsers = users.filter(user => {
         const avg = ratingMap.get(user._id.toString()) ?? 0;
         return avg >= filters.minRating!;
       });
     }
 
-    return users;
+    // ✅ Attach unified BusinessDetails to each user
+    return filteredUsers.map(this.attachBusinessDetails);
   }
 
-
+  private attachBusinessDetails(user: any): any {
+    return {
+      ...user,
+      BusinessDetails:
+        user?.photographerBusinessDetails ??
+        user?.cateringBusinessDetails ??
+        user?.venueBusinessDetails ??
+        user?.salonBusinessDetails ??
+        undefined,
+    };
+  }
 
   async updatePushToken(dto: UpdatePushTokenDto) {
     const user = await this.userModel.findById(dto.userId);
