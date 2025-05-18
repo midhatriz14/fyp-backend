@@ -168,8 +168,16 @@ export class AuthService {
     }
 
     if (filters.city) {
-      query['city'] = { $regex: filters.city, $options: 'i' };
+      query['$or'] = [
+        ...(query['$or'] || []), // preserve existing $or conditions like staff or cancellationPolicy
+        { 'photographerBusinessDetails.cityCovered': { $regex: filters.city, $options: 'i' } },
+        { 'salonBusinessDetails.cityCovered': { $regex: filters.city, $options: 'i' } },
+        { 'cateringBusinessDetails.cityCovered': { $regex: filters.city, $options: 'i' } },
+        // VenueBusinessDetails may not have cityCovered, so optionally include:
+        { 'venueBusinessDetails.cityCovered': { $regex: filters.city, $options: 'i' } }
+      ];
     }
+
 
     if (filters.staff) {
       query['$or'] = [
