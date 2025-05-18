@@ -135,6 +135,7 @@ export class AuthService {
 
   async searchUsers(keyword: string): Promise<User[]> {
     return this.userModel.find({
+      role: 'Vendor', // ✅ Only fetch vendors
       $or: [
         { name: { $regex: keyword, $options: 'i' } },
         { 'contactDetails.brandName': { $regex: keyword, $options: 'i' } },
