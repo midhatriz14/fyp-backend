@@ -74,7 +74,7 @@ export class ChatService {
         const message = new this.messageModel({ chatId, senderId, message: content, receiverId: senderId });
         await this.conversationModel.updateOne({ chatId, lastMessage: message });
         try {
-            await this.sendPushNotification("New Message", content, message.senderId, "MESSAGE");
+            // await this.sendPushNotification("New Message", content, message.senderId, "MESSAGE");
             await this.sendPushNotification("New Message", content, message.receiverId, "MESSAGE");
         } catch (error) {
             console.log(error);
