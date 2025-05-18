@@ -1,11 +1,12 @@
 // src/chat/chat.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Message } from './../auth/schemas/message.schema';
 import { Conversation } from 'src/auth/schemas/conversation.schema';
 import axios from 'axios';
 import { User } from 'src/auth/schemas/user.schema';
+import { Notification } from 'src/auth/schemas/notification.schema';
 
 @Injectable()
 export class ChatService {
@@ -13,7 +14,7 @@ export class ChatService {
         @InjectModel(Message.name) private messageModel: Model<Message>,
         @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
         @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(User.name) private notificationModel: Model<User>,
+        @InjectModel(Notification.name) private notificationModel: Model<Notification>,
     ) { }
 
     // Create a new conversation
@@ -73,10 +74,14 @@ export class ChatService {
     async createMessage(chatId: string, senderId: string, content: string): Promise<Message> {
         const message = new this.messageModel({ chatId, senderId, message: content, receiverId: senderId });
         await this.conversationModel.updateOne({ chatId, lastMessage: message });
+        const conversationObj = await this.conversationModel.findOne({ chatId }).populate('participants');
+        const otherUser = conversationObj?.participants.find(
+            x => x._id && !x._id.equals(senderId)
+        )
         try {
             console.log("Sending Push in messages");
             // await this.sendPushNotification("New Message", content, message.senderId, "MESSAGE");
-            await this.sendPushNotification("New Message", content, message.receiverId, "MESSAGE");
+            await this.sendPushNotification("New Message", content, otherUser?._id, "MESSAGE");
         } catch (error) {
             console.log("Sending Push in messages", error);
         }
@@ -90,7 +95,7 @@ export class ChatService {
 
     async getUserPushToken(userId: string): Promise<string> {
         const user = await this.userModel.findById(userId).select('pushToken');
-
+        console.log(user?.email);
         if (!user) {
             throw new NotFoundException(`User with ID ${userId} not found`);
         }
