@@ -9,7 +9,6 @@ import { ChatModule } from './chat/chat.module';
 import { OrderModule } from './order/order.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { EcardModule } from './e-card/e-card.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
