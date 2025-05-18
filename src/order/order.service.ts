@@ -6,6 +6,7 @@ import { Order } from 'src/auth/schemas/order.schema';
 import { VendorOrder } from 'src/auth/schemas/vendor-order.schema';
 import { UpdateOrderStatusDto } from './dto/update-order-status-dto';
 import { User } from 'src/auth/schemas/user.schema';
+import { Notification } from 'src/auth/schemas/notification.schema';
 
 @Injectable()
 export class OrderService {
@@ -13,6 +14,7 @@ export class OrderService {
         @InjectModel(User.name) private readonly userModel: Model<User>,
         @InjectModel(Order.name) private readonly orderModel: Model<Order>,
         @InjectModel(VendorOrder.name) private readonly vendorOrderModel: Model<VendorOrder>,
+        @InjectModel(Notification.name) private readonly notificationModel: Model<Notification>
     ) { }
 
     // Create a new order
@@ -67,7 +69,7 @@ export class OrderService {
         await savedOrder.save();
         try {
             for (let index = 0; index < services.length; index++) {
-                await this.sendPushNotification("Order", "A new order has been placed", services[index].vendorId);
+                await this.sendPushNotification("Order", "A new order has been placed", services[index].vendorId, "CREATE_ORDER");
                 console.log("Notification sent on create order", services[index].vendorId);
             }
         } catch (error) {
@@ -186,7 +188,11 @@ export class OrderService {
         if (!updated) {
             throw new NotFoundException('Order not found');
         }
-
+        try {
+            await this.sendPushNotification("Order Update", `Your order has been ${dto.status}`, updated.organizerId.toString(), "ORDER_UPDATE");
+        } catch (error) {
+            console.log(error);
+        }
         return updated;
     }
 
@@ -323,7 +329,7 @@ export class OrderService {
         return user.pushToken;
     }
 
-    async sendPushNotification(title: string, body: string, userId: string) {
+    async sendPushNotification(title: string, body: string, userId: string, type: string) {
         const token = await this.getUserPushToken(userId);
         const message = {
             to: token,
@@ -338,10 +344,21 @@ export class OrderService {
                     'Content-Type': 'application/json',
                 },
             });
+            await this.saveNotification(userId, title, body, type);
             return response.data;
         } catch (error) {
             console.error('Expo push error:', error);
             throw error;
         }
+    }
+
+    async saveNotification(userId: string, title: string, body: string, type: string) {
+        const notification = new this.notificationModel({
+            userId,
+            title,
+            body,
+            type,
+        });
+        return await notification.save();
     }
 }

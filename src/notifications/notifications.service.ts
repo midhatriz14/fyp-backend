@@ -4,10 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
 import { Model } from 'mongoose';
 import { User } from 'src/auth/schemas/user.schema';
+import { Notification } from 'src/auth/schemas/notification.schema';
 
 @Injectable()
 export class NotificationService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>,) {
+    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(Notification.name) private notificationModel: Model<Notification>) {
 
     }
     async sendExpoPush(token: string, title: string, body: string) {
@@ -65,5 +66,11 @@ export class NotificationService {
             console.error('Expo push error:', error);
             throw error;
         }
+    }
+
+    async getNotificationsByUserId(userId: string) {
+        return await this.notificationModel
+            .find({ userId })
+            .sort({ createdAt: -1 }); // Most recent first
     }
 }

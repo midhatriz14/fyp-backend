@@ -1,15 +1,19 @@
 // src/chat/chat.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Message } from './../auth/schemas/message.schema';
 import { Conversation } from 'src/auth/schemas/conversation.schema';
+import axios from 'axios';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class ChatService {
     constructor(
         @InjectModel(Message.name) private messageModel: Model<Message>,
         @InjectModel(Conversation.name) private conversationModel: Model<Conversation>,
+        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(User.name) private notificationModel: Model<User>,
     ) { }
 
     // Create a new conversation
@@ -69,11 +73,63 @@ export class ChatService {
     async createMessage(chatId: string, senderId: string, content: string): Promise<Message> {
         const message = new this.messageModel({ chatId, senderId, message: content, receiverId: senderId });
         await this.conversationModel.updateOne({ chatId, lastMessage: message });
+        try {
+            await this.sendPushNotification("New Message", content, message.receiverId, "MESSAGE");
+        } catch (error) {
+            console.log(error);
+        }
         return message.save();
     }
 
     // Get all messages for a conversation
     async getMessagesForConversation(chatId: string): Promise<Message[]> {
         return this.messageModel.find({ chatId }).sort({ timestamp: 1 }).exec();
+    }
+
+    async getUserPushToken(userId: string): Promise<string> {
+        const user = await this.userModel.findById(userId).select('pushToken');
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${userId} not found`);
+        }
+
+        if (!user.pushToken) {
+            throw new NotFoundException(`Push token not found for user ID ${userId}`);
+        }
+
+        return user.pushToken;
+    }
+
+    async sendPushNotification(title: string, body: string, userId: string, type: string) {
+        const token = await this.getUserPushToken(userId);
+        const message = {
+            to: token,
+            sound: 'default',
+            title,
+            body,
+        };
+
+        try {
+            const response = await axios.post('https://exp.host/--/api/v2/push/send', message, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            await this.saveNotification(userId, title, body, type);
+            return response.data;
+        } catch (error) {
+            console.error('Expo push error:', error);
+            throw error;
+        }
+    }
+
+    async saveNotification(userId: string, title: string, body: string, type: string) {
+        const notification = new this.notificationModel({
+            userId,
+            title,
+            body,
+            type,
+        });
+        return await notification.save();
     }
 }
