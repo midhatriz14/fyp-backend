@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Req, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, Patch, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -34,6 +34,12 @@ export class AuthController {
   @Post('push-token')
   async updatePushToken(@Body() body: UpdatePushTokenDto) {
     return this.authService.updatePushToken(body);
+  }
+
+  @Get('search')
+  async searchUsers(@Query('q') query: string) {
+    const users = await this.authService.searchUsers(query);
+    return users;
   }
 
   // @Get('google')

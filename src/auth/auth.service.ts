@@ -133,6 +133,15 @@ export class AuthService {
     return updatedUser;
   }
 
+  async searchUsers(keyword: string): Promise<User[]> {
+    return this.userModel.find({
+      $or: [
+        { name: { $regex: keyword, $options: 'i' } },
+        { 'contactDetails.brandName': { $regex: keyword, $options: 'i' } },
+      ],
+    }).exec();
+  }
+
   async updatePushToken(dto: UpdatePushTokenDto) {
     const user = await this.userModel.findById(dto.userId);
     if (!user) throw new NotFoundException('User not found');
